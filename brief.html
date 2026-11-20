@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account standing · Brief</title>
+<meta name="description" content="One-page brief by Shri Nagarajan on making risk actions understandable and fixable for the businesses they affect.">
+<style>
+:root{--bg:#fff;--text:#353a44;--strong:#21252c;--muted:#596171;--line:#ebeef1;--brand:#635bff;--soft:#f6f8fa}
+*{box-sizing:border-box}
+body{margin:0;background:var(--soft);color:var(--text);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif;-webkit-font-smoothing:antialiased}
+.page{max-width:780px;margin:32px auto;background:var(--bg);border-radius:8px;box-shadow:0 0 0 1px rgba(64,68,82,.08),0 2px 5px rgba(64,68,82,.08);padding:40px 48px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:20px}
+h1{font-size:26px;line-height:1.2;color:var(--strong);margin:0 0 4px}
+.meta{color:var(--muted);font-size:13.5px}
+.btn{display:inline-block;font-weight:600;font-size:14px;color:#fff;background:var(--brand);border-radius:6px;padding:7px 14px;text-decoration:none;white-space:nowrap}
+.btn:focus-visible,a:focus-visible{outline:none;box-shadow:0 0 0 4px rgba(1,150,237,.36);border-radius:4px}
+h2{font-size:13px;color:var(--strong);margin:18px 0 4px;font-weight:700}
+p{margin:0 0 8px}
+a{color:var(--brand)}
+.lead{font-size:16px;color:var(--strong)}
+ol,ul{margin:0 0 8px;padding-left:20px}li{margin-bottom:3px}
+footer{border-top:1px solid var(--line);margin-top:20px;padding-top:12px;color:var(--muted);font-size:12.5px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.printurl{display:none}
+@media (max-width:640px){.page{margin:0;border-radius:0;box-shadow:none;padding:24px 18px}h1{font-size:22px}}
+@media print{
+  @page{size:A4;margin:9mm 14mm}
+  body{background:#fff;font-size:9.1pt;line-height:1.28;color:#222}
+  .page{margin:0;box-shadow:none;padding:0;max-width:none}
+  h1{font-size:17pt}.lead{font-size:10.2pt}h2{font-size:9.7pt;margin-top:6pt}
+  .btn{display:none}.printurl{display:inline}
+  header{padding-bottom:6pt;margin-bottom:8pt}p{margin-bottom:5pt}
+  footer{margin-top:5pt;padding-top:4pt;font-size:7.6pt;flex-wrap:nowrap}
+  li{margin-bottom:1pt}
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <header>
+    <div>
+      <h1>Account standing</h1>
+      <div class="meta">One-page brief · Shri Nagarajan · November 2026<span class="printurl"> · Prototype: shrikanth-nagarajan.github.io/risk-account-standing</span></div>
+    </div>
+    <a class="btn" href="index.html">Open the prototype</a>
+  </header>
+
+  <p class="lead">When Risk holds a business's money, the decision is usually right and the experience is usually poor. The business gets an email, a percentage and a date. They can't see why, what it costs them or what would change it, so they contact support, appeal blind or leave. I think the explanation and the route out should be part of the product, so I built one.</p>
+
+  <h2>The problem</h2>
+  <p>Reserves exist for good reasons. Stripe's own help pages list long delivery times and sudden jumps in activity as triggers, and both are real exposure. The cost of getting the experience wrong falls on both sides. A healthy business that has a cash crunch at the wrong moment can fail, and that's a customer lost. Every unexplained hold also becomes support contacts, appeals and analyst time. And a fixed percentage held for a fixed period over-holds once orders ship, because the risk falls while the reserve stays put.</p>
+
+  <h2>What the prototype does</h2>
+  <p>It follows one case from both sides: a UK bike maker whose pre-orders jump sevenfold after a video goes round.</p><ul>
+    <li><strong>The business sees</strong> what's held, the three reasons in plain numbers (including what counted in their favour), what it does to their cash over 12 weeks, and three ways to reduce it. Evidence is checked as it's uploaded, so a stale bank statement gets caught in seconds instead of after a two-day wait. An assistant answers only from their account and passes anything else to a person.</li>
+    <li><strong>The analyst sees</strong> the signals behind the decision, each with a "this looks wrong" button that feeds model review. They compare options against stressed loss, and an AI-drafted notice runs through policy checks before it can go.</li>
+    <li><strong>Delivery-linked release</strong> is the new mechanic. Held funds come back order by order as tracking confirms delivery. Coverage follows the real exposure, and the business gets its money weeks sooner.</li>
+  </ul>
+  <p>I spent most of the time on edge cases. A financial crime review can't explain itself, so the AI's first draft for that case leaks a sanctions match and the check blocks it as tipping off. A business can flag a payroll or tax payment they can't make, and the case jumps the queue. A UK and Ireland switch changes currency, complaint routes and data rules. The UK replaced Article 22 in February 2026, while Ireland stays on the GDPR version. It works with a keyboard, a screen reader and on mobile.</p>
+
+  <h2>Why this is a Risk platform problem</h2>
+  <p>The same pattern covers payout holds, onboarding reviews, Capital credit limits and platforms setting reserves on connected accounts. One shared decision record, explanation layer and policy check would let every Risk team ship a clear, appealable action without rebuilding it, and give product teams across Stripe something to build on.</p>
+
+  <h2>How I'd know it's working</h2>
+  <p>The number I'd steer by is held funds as a multiple of stressed exposure, trending to 1.0 without losses going up. Under that: time from action to resolution, support contacts per action, churn within 90 days of an action, and appeal overturn rate as a check on decision quality. Delivery-linked release would launch with a holdout so we can measure its effect on losses and retention properly.</p>
+
+  <h2>How I'd start</h2>
+  <ol>
+    <li><strong>First 30 days.</strong> Read real reserve cases end to end with analysts, support and the businesses involved. Size where the cost sits.</li>
+    <li><strong>Days 31 to 60.</strong> Agree an explanation policy with Legal and Financial Crime: what can be said, what never can, who signs off. Ship the policy check to analysts first, where the risk is lowest.</li>
+    <li><strong>Days 61 to 90.</strong> Pilot delivery-linked release with pre-order retailers in the UK, with a holdout. Decide from the data whether it becomes a standard reserve type.</li>
+  </ol>
+
+  <h2>What I don't know yet</h2>
+  <p>How much tracking coverage is enough to release against. Whether delivery-linked release changes dispute behaviour, since "delivered" isn't always "received". How much we can explain before it helps bad actors. Where the line sits for businesses run by individuals under the new UK automated decision rules. I'd want Legal and Risk's view on all four before committing.</p>
+
+  <h2>Why me</h2>
+  <p>I've spent seven years in payments product, mostly as the merchant on the other end of these decisions. I own the payments roadmap for Sainsbury's, Argos and Habitat, around 180 million transactions a year through Checkout.com, and cutting chargebacks by 31% meant working closely with fraud operations on where to draw the line. Before that I worked on AML transaction monitoring for Standard Chartered in Singapore, so I know why some decisions can't be explained. I also lead Sainsbury's agentic AI programme. I built this with Claude Code because I'd rather show the work than describe it.</p>
+
+  <footer>
+    <span>Concept work by Shri Nagarajan. Not affiliated with Stripe. All data is made up. Regulatory notes are my reading, to be checked with Legal.</span>
+  </footer>
+</main>
+</body>
+</html>

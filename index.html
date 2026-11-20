@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account standing · Risk concept</title>
+<meta name="description" content="Concept prototype by Shri Nagarajan: risk actions that the businesses they affect can understand and fix.">
+<style>
+:root{
+  --bg:#fff;--canvas:#f6f8fa;--surface:#fff;--border:#d8dee4;--line:#ebeef1;
+  --text:#353a44;--strong:#21252c;--muted:#596171;--subtle:#6c7688;
+  --brand:#635bff;--brand-h:#5145e5;--brand-soft:#f5f4ff;--brand-line:#d9d6ff;
+  --ok:#006908;--ok-bg:#d7f7c2;--warn:#a82c00;--warn-bg:#fcedb9;--bad:#b3093c;--bad-bg:#ffe7f2;
+  --info:#0055bc;--info-bg:#cff5f6;--neu:#545969;--neu-bg:#ebeef1;
+  --focus:0 0 0 4px rgba(1,150,237,.36);
+  --sh:0 0 0 1px rgba(64,68,82,.08),0 2px 5px rgba(64,68,82,.08);
+  --sh-btn:0 1px 1px rgba(0,0,0,.12),0 2px 5px rgba(60,66,87,.08);
+  --r:6px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif;
+  --mono:"SF Mono",SFMono-Regular,ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+html{scroll-padding-top:16px}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/20px var(--font);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+a{color:var(--brand);text-decoration:none}a:hover{color:var(--brand-h);text-decoration:underline}
+h1,h2,h3{color:var(--strong);margin:0;font-weight:700}
+h1{font-size:28px;line-height:36px}
+h2{font-size:16px;line-height:24px}
+h3{font-size:14px;line-height:20px;font-weight:600}
+p{margin:0 0 8px}
+small{font-size:12px;line-height:16px}
+:focus{outline:none}
+:focus-visible{box-shadow:var(--focus);border-radius:4px}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:12px;top:-80px;z-index:50;background:var(--surface);padding:8px 12px;border-radius:var(--r);box-shadow:var(--sh)}
+.skip:focus{top:12px}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+
+/* concept and prototype bars */
+.concept{font-size:12px;line-height:16px;color:var(--muted);background:var(--canvas);border-bottom:1px solid var(--line);padding:6px 20px;display:flex;gap:4px 16px;flex-wrap:wrap;justify-content:space-between}
+.concept a{font-weight:600}
+.proto{display:flex;align-items:center;gap:8px 20px;flex-wrap:wrap;padding:8px 20px;background:#fff8e6;border-bottom:1px solid #f5d98b;font-size:13px}
+.proto-tag{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--warn);background:var(--warn-bg);padding:1px 6px;border-radius:4px}
+.proto .ctl{display:flex;align-items:center;gap:8px}
+.proto .ctl>span{color:var(--muted);font-weight:500}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:var(--r);padding:2px;background:var(--surface)}
+.seg label{position:relative;cursor:pointer}
+.seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.seg span{display:block;padding:3px 10px;border-radius:4px;font-weight:500;color:var(--muted);line-height:20px}
+.seg input:checked+span{background:var(--brand-soft);color:var(--brand)}
+.seg input:focus-visible+span{box-shadow:var(--focus)}
+select{font:inherit;color:var(--strong);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5' fill='none' stroke='%23596171' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 8px center;border:1px solid var(--border);border-radius:var(--r);padding:4px 28px 4px 10px;min-height:30px;appearance:none;box-shadow:var(--sh-btn)}
+.proto .reset{margin-left:auto}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:600 14px/20px var(--font);border-radius:var(--r);padding:5px 12px;min-height:32px;border:0;cursor:pointer;white-space:nowrap;text-decoration:none!important;color:var(--strong);background:var(--surface);box-shadow:0 0 0 1px var(--border),var(--sh-btn)}
+.btn:hover{background:#f9fafb;color:var(--strong)}
+.btn.primary{background:var(--brand);color:#fff;box-shadow:0 0 0 1px var(--brand),var(--sh-btn)}
+.btn.primary:hover{background:var(--brand-h)}
+.btn.danger{color:var(--bad)}
+.btn.sm{font-size:13px;padding:2px 8px;min-height:28px}
+.btn.link{background:none;box-shadow:none;color:var(--brand);padding:0;min-height:0;font-weight:600}
+.btn.link:hover{text-decoration:underline!important;background:none}
+.btn[disabled],.btn[aria-disabled=true]{opacity:.5;cursor:not-allowed}
+.btn:focus-visible{box-shadow:0 0 0 1px var(--border),var(--focus)}
+.btn.primary:focus-visible{box-shadow:0 0 0 1px var(--brand),var(--focus)}
+.btn svg{width:14px;height:14px;flex:none}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;line-height:16px;font-weight:600;padding:2px 6px;border-radius:4px;white-space:nowrap;background:var(--neu-bg);color:var(--neu)}
+.badge svg{width:12px;height:12px}
+.b-ok{background:var(--ok-bg);color:var(--ok)}.b-warn{background:var(--warn-bg);color:var(--warn)}.b-bad{background:var(--bad-bg);color:var(--bad)}.b-info{background:var(--info-bg);color:var(--info)}.b-brand{background:var(--brand-soft);color:var(--brand)}
+
+/* shell */
+.shell{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:calc(100vh - 80px)}
+.side{border-right:1px solid var(--line);padding:12px 12px 24px;background:var(--surface)}
+.acct{display:flex;align-items:center;gap:10px;padding:8px;margin-bottom:12px;border-radius:var(--r)}
+.av{width:28px;height:28px;border-radius:6px;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;background:#3f7d58;flex:none}
+.av.ops{background:#30313d}
+.acct strong{display:block;color:var(--strong);font-size:14px;line-height:18px}
+.acct small{color:var(--muted)}
+.nav a,.nav .dis{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:var(--r);color:var(--text);font-weight:500;min-height:32px;text-decoration:none}
+.nav a:hover{background:var(--canvas);color:var(--strong)}
+.nav a[aria-current=page]{color:var(--brand);font-weight:600}
+.nav a[aria-current=page] svg{color:var(--brand)}
+.nav .dis{color:var(--subtle);cursor:default}
+.nav svg{width:16px;height:16px;flex:none;color:var(--subtle)}
+.nav .grp{font-size:12px;font-weight:600;color:var(--muted);padding:16px 8px 4px}
+.nav .count{margin-left:auto}
+.topbar{display:flex;align-items:center;gap:12px;padding:12px 32px;border-bottom:1px solid var(--line);min-height:57px}
+.search{flex:1;max-width:520px;display:flex;align-items:center;gap:8px;color:var(--subtle);background:var(--canvas);border-radius:var(--r);padding:6px 10px}
+.search svg{width:14px;height:14px}
+.topbar .icons{margin-left:auto;display:flex;gap:4px;color:var(--subtle)}
+.topbar .icons span{width:32px;height:32px;display:grid;place-items:center}
+.topbar .icons svg{width:16px;height:16px}
+main{padding:28px 32px 64px;max-width:1240px}
+.crumbs{font-size:13px;color:var(--muted);margin-bottom:8px}
+.crumbs a{font-weight:500}
+.pagehead{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+.pagehead .sub{color:var(--muted);margin-top:4px;max-width:680px}
+.pagehead .actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:32px;align-items:start}
+.stack{display:grid;gap:32px}
+.stack-s{display:grid;gap:16px}
+section>h2{margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+section>h2 .r{margin-left:auto;font-size:13px;font-weight:500}
+
+.card{background:var(--surface);border-radius:8px;box-shadow:var(--sh)}
+.card .bd{padding:16px 20px}
+.card .hd{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card .ft{padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* status hero */
+.status{border-radius:8px;box-shadow:var(--sh);overflow:hidden}
+.status .bd{padding:20px}
+.status .eyebrow{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.status h2{font-size:20px;line-height:28px;margin-bottom:6px}
+.status p{max-width:640px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0;border-top:1px solid var(--line)}
+.facts div{padding:12px 20px;border-right:1px solid var(--line)}
+.facts div:last-child{border-right:0}
+.facts dt{font-size:12px;color:var(--muted);font-weight:500}
+.facts dd{margin:2px 0 0;font-size:15px;font-weight:600;color:var(--strong)}
+.status .ft{background:var(--canvas)}
+
+/* notice */
+.notice{display:flex;gap:10px;padding:12px 14px;border-radius:var(--r);background:var(--info-bg);color:#003a80;font-size:13px}
+.notice svg{width:16px;height:16px;flex:none;margin-top:2px}
+.notice.warn{background:var(--warn-bg);color:#6e2200}
+.notice.ok{background:var(--ok-bg);color:#004d06}
+.notice.neu{background:var(--canvas);color:var(--text);box-shadow:inset 0 0 0 1px var(--line)}
+.notice p:last-child{margin:0}
+.notice strong{color:inherit}
+
+/* reasons */
+.reasons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.reason{padding:14px 16px;border-radius:8px;box-shadow:var(--sh)}
+.reason .k{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;margin-bottom:6px}
+.reason .k svg{width:14px;height:14px}
+.reason .up{color:var(--warn)}.reason .down{color:var(--ok)}
+.reason h3{margin-bottom:4px}
+.reason p{color:var(--muted);font-size:13px;margin:0}
+.reason .big{font-size:20px;font-weight:700;color:var(--strong);line-height:28px;margin:2px 0 4px}
+
+/* options list */
+.opts{display:grid;gap:0;border-radius:8px;box-shadow:var(--sh)}
+.opt{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 16px;padding:16px 20px;border-bottom:1px solid var(--line);align-items:center}
+.opt:last-child{border-bottom:0}
+.opt h3{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.opt p{color:var(--muted);margin:4px 0 0;font-size:13px;max-width:560px}
+.opt .act{grid-row:1/span 2;grid-column:2}
+
+/* timeline */
+.tl{list-style:none;margin:0;padding:0}
+.tl li{position:relative;padding:0 0 16px 22px;font-size:13px}
+.tl li::before{content:"";position:absolute;left:4px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--border)}
+.tl li::after{content:"";position:absolute;left:7.5px;top:18px;bottom:0;width:1px;background:var(--line)}
+.tl li:last-child::after{display:none}
+.tl li.done::before{background:var(--brand)}
+.tl li.now::before{background:#fff;box-shadow:0 0 0 2px var(--brand)}
+.tl .t{color:var(--muted);font-size:12px;display:block}
+.tl strong{color:var(--strong);font-weight:600}
+
+/* side panels */
+.panel{border-radius:8px;box-shadow:var(--sh);padding:16px}
+.panel h2{font-size:14px;line-height:20px;margin-bottom:8px}
+.panel p,.panel li{font-size:13px}
+.panel ul{margin:0;padding-left:18px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px;margin:0}
+.kv dt{color:var(--muted)}.kv dd{margin:0;text-align:right;font-weight:600;color:var(--strong)}
+
+/* assistant */
+.asst .chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{font:500 13px/18px var(--font);border:1px solid var(--border);background:var(--surface);color:var(--strong);border-radius:999px;padding:4px 10px;cursor:pointer;min-height:28px}
+.chip:hover{border-color:var(--brand);color:var(--brand)}
+.chip[aria-pressed=true]{background:var(--brand-soft);border-color:var(--brand-line);color:var(--brand)}
+.asst form{display:flex;gap:6px;margin-top:8px}
+.input,textarea{font:inherit;font-size:14px;color:var(--strong);background:var(--surface);border:0;border-radius:var(--r);box-shadow:0 0 0 1px var(--border),var(--sh-btn);padding:6px 10px;min-height:32px;width:100%}
+.input:focus,textarea:focus{box-shadow:0 0 0 1px var(--brand),var(--focus)}
+.input[aria-invalid=true],textarea[aria-invalid=true]{box-shadow:0 0 0 1px var(--bad)}
+textarea{min-height:96px;resize:vertical;line-height:20px}
+.log{display:grid;gap:10px;margin-top:10px}
+.qa{font-size:13px}
+.qa .q{font-weight:600;color:var(--strong);margin-bottom:4px}
+.qa .a{background:var(--canvas);border-radius:var(--r);padding:10px 12px}
+.qa .a p{margin:0 0 6px}.qa .a p:last-child{margin:0}
+.src{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.src span{font-size:11px;line-height:16px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-radius:4px;padding:1px 6px;color:var(--muted)}
+.fine{font-size:12px;color:var(--muted);margin-top:8px}
+
+/* chart */
+figure{margin:0}
+.chartwrap{padding:16px 20px}
+.chart-top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:2px;display:inline-block}
+.sw.base{background:var(--brand)}
+.sw.rel{background:repeating-linear-gradient(135deg,#0e9f6e 0 2px,#bdf0d6 2px 4px)}
+.chart svg{width:100%;height:auto;display:block}
+.totals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+.totals div{padding:10px 12px;border-radius:var(--r);background:var(--canvas)}
+.totals div.on{box-shadow:inset 0 0 0 1px var(--brand-line);background:var(--brand-soft)}
+.totals span{display:block;font-size:12px;color:var(--muted)}
+.totals strong{font-size:16px;color:var(--strong)}
+
+/* tables */
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{text-align:left;font-size:12px;font-weight:600;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+td.r,th.r{text-align:right}
+tr.rowlink{cursor:pointer}
+tr.rowlink:hover td{background:#f9fafb}
+tr.mute td{color:var(--subtle)}
+.tablewrap{overflow-x:auto;border-radius:8px;box-shadow:var(--sh)}
+.tablewrap table tr:last-child td{border-bottom:0}
+.idcell{font-family:var(--mono);font-size:12px}
+
+/* evidence */
+.reqs{border-radius:8px;box-shadow:var(--sh)}
+.req{padding:16px 20px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:4px 12px;align-items:start}
+.req:last-child{border-bottom:0}
+.req .n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--neu-bg);color:var(--neu)}
+.req .n.pass{background:var(--ok-bg);color:var(--ok)}.req .n.warn{background:var(--warn-bg);color:var(--warn)}.req .n.fail{background:var(--bad-bg);color:var(--bad)}
+.req .n svg{width:14px;height:14px}
+.req p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.file{margin-top:10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;padding:8px 10px;border-radius:var(--r);background:var(--canvas)}
+.file svg{width:14px;height:14px;flex:none;color:var(--subtle)}
+.file .fn{font-family:var(--mono);font-size:12px;color:var(--strong)}
+.checks{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px}
+.checks li{display:flex;gap:8px;font-size:13px;align-items:flex-start}
+.checks svg{width:14px;height:14px;flex:none;margin-top:3px}
+.c-pass{color:var(--ok)}.c-warn{color:var(--warn)}.c-fail{color:var(--bad)}.c-info{color:var(--info)}
+.checks .msg{color:var(--text)}
+
+/* ops */
+.signals{border-radius:8px;box-shadow:var(--sh)}
+.sig{display:grid;grid-template-columns:minmax(0,1fr) 160px auto;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line);align-items:center}
+.sig:last-child{border-bottom:0}
+.sig h3{font-weight:600}
+.sig p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.bar{height:8px;background:var(--line);border-radius:4px;position:relative}
+.bar i{position:absolute;top:0;bottom:0;border-radius:4px}
+.bar i.up{background:#e46f3a;left:50%}
+.bar i.down{background:#1c9e62;right:50%}
+.bar::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--subtle)}
+.sigv{font-size:12px;color:var(--muted);display:block;text-align:center;margin-top:4px}
+.optsel{width:100%}
+.optsel td,.optsel th{vertical-align:middle}
+.optsel tr.sel td{background:var(--brand-soft)}
+.optsel label{display:flex;gap:8px;align-items:flex-start;cursor:pointer;font-weight:600;color:var(--strong)}
+.optsel input{accent-color:var(--brand);width:16px;height:16px;margin:2px 0 0}
+.optsel small{display:block;font-weight:400;color:var(--muted)}
+.policy{list-style:none;margin:0;padding:0}
+.policy li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.policy li:last-child{border-bottom:0}
+.policy svg{width:16px;height:16px;margin-top:2px}
+.policy strong{color:var(--strong);font-weight:600;display:block}
+.draftbox textarea{min-height:300px;font-size:14px;line-height:21px}
+.lock{display:flex;gap:10px;align-items:flex-start;padding:16px 20px;color:var(--muted)}
+.lock svg{width:16px;height:16px;flex:none;margin-top:2px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+
+/* forms */
+.field{margin-bottom:14px}
+.field label,.field .lbl{display:block;font-weight:600;color:var(--strong);margin-bottom:6px;font-size:13px}
+.field .hint{font-size:12px;color:var(--muted);margin-top:4px}
+.field .err{font-size:12px;color:var(--bad);margin-top:4px;display:flex;gap:4px;align-items:center}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.check{display:flex;gap:8px;align-items:flex-start;cursor:pointer;padding:4px 0}
+.check input{accent-color:var(--brand);width:16px;height:16px;margin:2px 0 0;flex:none}
+.check small{display:block;color:var(--muted)}
+select.input{padding-right:28px}
+
+/* dialog */
+dialog{border:0;border-radius:10px;padding:0;width:min(560px,calc(100vw - 32px));box-shadow:0 0 0 1px rgba(64,68,82,.08),0 15px 35px rgba(60,66,87,.2),0 5px 15px rgba(0,0,0,.12);color:var(--text)}
+dialog::backdrop{background:rgba(33,37,44,.4)}
+dialog .hd{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+dialog .hd h2{font-size:16px}
+dialog .x{margin-left:auto}
+dialog .bd{padding:16px 20px;max-height:min(70vh,600px);overflow:auto}
+dialog .ft{padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;background:var(--canvas)}
+.pick{display:grid;gap:8px}
+.pick button{text-align:left;display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 10px;padding:10px 12px;border-radius:var(--r);border:0;background:var(--surface);box-shadow:0 0 0 1px var(--border);cursor:pointer;font:inherit}
+.pick button:hover{box-shadow:0 0 0 1px var(--brand)}
+.pick button:focus-visible{box-shadow:0 0 0 1px var(--brand),var(--focus)}
+.pick .fn{font-family:var(--mono);font-size:12px;color:var(--strong)}
+.pick small{grid-column:2;color:var(--muted)}
+.pick svg{width:16px;height:16px;color:var(--subtle);grid-row:1/span 2;margin-top:2px}
+.drop{border:1px dashed var(--border);border-radius:var(--r);padding:14px;text-align:center;margin-top:12px;font-size:13px;color:var(--muted)}
+
+/* toast */
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#21252c;color:#fff;padding:10px 16px;border-radius:var(--r);font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:60;max-width:calc(100vw - 32px);opacity:0;pointer-events:none;transition:opacity .15s}
+#toast.on{opacity:1}
+
+/* ops chrome */
+.ops .side{background:#fbfbfc}
+.ops .topbar{background:#fbfbfc}
+.who{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;margin-left:auto}
+.internal{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--neu);background:var(--neu-bg);padding:1px 6px;border-radius:4px}
+
+@media (max-width:1080px){.cols{grid-template-columns:minmax(0,1fr)}.reasons{grid-template-columns:1fr}}
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .side{border-right:0;border-bottom:1px solid var(--line);padding:8px 12px}
+  .side .acct{margin:0}
+  .nav{display:flex;overflow-x:auto;gap:2px;padding-bottom:4px}
+  .nav .grp,.nav .dis{display:none}
+  .nav a{white-space:nowrap}
+  .topbar{padding:10px 16px}
+  main{padding:20px 16px 48px}
+  h1{font-size:24px;line-height:32px}
+  .sig{grid-template-columns:1fr}
+  .opt{grid-template-columns:1fr}.opt .act{grid-row:auto;grid-column:auto;margin-top:8px}
+  .row2,.totals{grid-template-columns:1fr}
+  .proto .reset{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (forced-colors:active){.badge,.btn,.chip{border:1px solid}.bar i{forced-color-adjust:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="concept" role="note">
+  <span>Concept prototype by Shri Nagarajan. Not a Stripe product and not affiliated with Stripe. Every business, person and number here is made up.</span>
+  <a href="brief.html">Read the one-page brief</a>
+</div>
+<div class="proto" role="region" aria-label="Prototype controls">
+  <span class="proto-tag">Prototype</span>
+  <div class="ctl" role="radiogroup" aria-label="View as">
+    <span aria-hidden="true">View as</span>
+    <div class="seg">
+      <label><input type="radio" name="view" value="biz" checked><span>Business</span></label>
+      <label><input type="radio" name="view" value="ops"><span>Risk Ops</span></label>
+    </div>
+  </div>
+  <div class="ctl" role="radiogroup" aria-label="Business country">
+    <span aria-hidden="true">Country</span>
+    <div class="seg">
+      <label><input type="radio" name="region" value="GB" checked><span>UK</span></label>
+      <label><input type="radio" name="region" value="IE"><span>Ireland</span></label>
+    </div>
+  </div>
+  <div class="ctl">
+    <label for="scenario" class="muted" style="font-weight:500">Scenario</label>
+    <select id="scenario">
+      <option value="reserve">Rolling reserve after a pre-order spike</option>
+      <option value="review">Payouts paused for a restricted review</option>
+      <option value="clear">Nothing needs action</option>
+    </select>
+  </div>
+  <button class="btn sm reset" type="button" data-act="reset">Reset demo</button>
+</div>
+<div id="app"><noscript><p style="padding:24px">This prototype needs JavaScript. The <a href="brief.html">one-page brief</a> works without it.</p></noscript></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div class="sr" id="announce" aria-live="polite"></div>
+<dialog id="dlg" aria-labelledby="dlg-t"></dialog>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- icons ---------- */
+const P = {
+  home:'<path d="M2.5 7 8 2.5 13.5 7v6a.5.5 0 0 1-.5.5h-3v-4H6v4H3a.5.5 0 0 1-.5-.5z"/>',
+  bal:'<rect x="2" y="3.5" width="12" height="9" rx="1.5"/><path d="M2 6.5h12M10.5 9.5h1.5"/>',
+  tx:'<path d="M3 5h10l-2.5-2.5M13 11H3l2.5 2.5"/>',
+  cust:'<circle cx="8" cy="5.5" r="2.5"/><path d="M3 13.5c.6-2.4 2.6-3.5 5-3.5s4.4 1.1 5 3.5"/>',
+  prod:'<path d="M2.5 5 8 2.5 13.5 5v6L8 13.5 2.5 11z"/><path d="M2.5 5 8 7.5 13.5 5M8 7.5v6"/>',
+  shield:'<path d="M8 2 13 4v4c0 3-2.2 5.2-5 6-2.8-.8-5-3-5-6V4z"/>',
+  gear:'<circle cx="8" cy="8" r="2"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4"/>',
+  search:'<circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/>',
+  help:'<circle cx="8" cy="8" r="6"/><path d="M6.3 6.2a1.8 1.8 0 0 1 3.4.6c0 1.2-1.7 1.4-1.7 2.6M8 11.3v.2"/>',
+  bell:'<path d="M4 11V7a4 4 0 0 1 8 0v4l1 1.5H3zM6.5 13.5a1.5 1.5 0 0 0 3 0"/>',
+  check:'<path d="m3 8.5 3 3 7-7"/>',
+  warn:'<path d="M8 2 14.5 13.5h-13z"/><path d="M8 6.5v3M8 11.5v.2"/>',
+  x:'<path d="m4 4 8 8M12 4l-8 8"/>',
+  info:'<circle cx="8" cy="8" r="6"/><path d="M8 7.3v4M8 5v.2"/>',
+  lock:'<rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/>',
+  up:'<path d="M8 13V3M4 7l4-4 4 4"/>',
+  down:'<path d="M8 3v10M4 9l4 4 4-4"/>',
+  file:'<path d="M4 1.5h5L12.5 5v9.5h-8.5z"/><path d="M9 1.5V5h3.5"/>',
+  queue:'<path d="M3 4h10M3 8h10M3 12h6"/>',
+  chart:'<path d="M2.5 13.5h11M4.5 11V8M8 11V4.5M11.5 11V6.5"/>',
+  doc:'<path d="M4 1.5h8v13H4z"/><path d="M6 5h4M6 8h4M6 11h2"/>',
+  ext:'<path d="M9 2.5h4.5V7M13.5 2.5 7.5 8.5M11.5 9.5v4h-9v-9h4"/>',
+  spark:'<path d="M8 2v3M8 11v3M2 8h3M11 8h3"/>'
+};
+const ic = (n, cls='') => `<svg class="${cls}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${P[n]}</svg>`;
+
+/* ---------- helpers ---------- */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const TODAY = new Date(2026, 10, 20);
+
+const REG = {
+  GB: {
+    cur:'GBP', loc:'en-GB', fx:1, city:'Bristol', country:'United Kingdom', owner:'Tom Ashby',
+    tax:'HMRC', registry:'Companies House', carriers:['Royal Mail','DPD','Evri','Shopify orders'],
+    ombuds:'Financial Ombudsman Service', ombudsWho:'Most micro-enterprises and small businesses can use it.',
+    dataLaw:'UK data protection law', dataNote:'Since February 2026, UK law lets us use automated decisions like this one, as long as we tell you, let you give your side and let you ask for a person to review it.',
+    regulator:'FCA', tipLaw:'the Proceeds of Crime Act 2002', analyst:'Priya S.', office:'London',
+    hols:['2026-12-25','2026-12-28','2027-01-01']
+  },
+  IE: {
+    cur:'EUR', loc:'en-IE', fx:1.15, city:'Galway', country:'Ireland', owner:'Aoife Brennan',
+    tax:'Revenue', registry:'the CRO', carriers:['An Post','DPD Ireland','Shopify orders'],
+    ombuds:'Financial Services and Pensions Ombudsman', ombudsWho:'Businesses with turnover up to €3 million can usually use it.',
+    dataLaw:'the GDPR', dataNote:'Under the GDPR you can ask for a person to review an automated decision, give your side and contest it.',
+    regulator:'Central Bank of Ireland', tipLaw:'the Criminal Justice (Money Laundering and Terrorist Financing) Act 2010', analyst:'Ciarán D.', office:'Dublin',
+    hols:['2026-12-25','2026-12-28','2027-01-01']
+  }
+};
+const rg = () => REG[S.region];
+const money = (gbp, dp = 0) => {
+  const r = rg(); const v = dp ? Math.round(gbp * r.fx * 100) / 100 : Math.round(gbp * r.fx / 10) * 10;
+  return new Intl.NumberFormat(r.loc, {style:'currency', currency:r.cur, minimumFractionDigits:dp, maximumFractionDigits:dp}).format(v);
+};
+const compact = gbp => new Intl.NumberFormat(rg().loc, {style:'currency', currency:rg().cur, notation:'compact', maximumFractionDigits:0}).format(gbp * rg().fx);
+const dfmt = (d, o = {day:'numeric', month:'short', year:'numeric'}) => d.toLocaleDateString(rg().loc, o);
+const dshort = d => d.toLocaleDateString(rg().loc, {day:'numeric', month:'short'});
+const dday = d => d.toLocaleDateString(rg().loc, {weekday:'short', day:'numeric', month:'short'});
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+function addBiz(d, n) {
+  const x = new Date(d); let k = 0;
+  while (k < n) { x.setDate(x.getDate() + 1); const w = x.getDay(); if (w && w !== 6 && !rg().hols.includes(iso(x))) k++; }
+  return x;
+}
+const D = (y, m, d) => new Date(y, m - 1, d);
+
+/* ---------- state ---------- */
+const qs = new URLSearchParams(location.search);
+const fresh = () => ({
+  region: qs.get('country') === 'ie' ? 'IE' : 'GB',
+  scenario: ['reserve','review','clear'].includes(qs.get('scenario')) ? qs.get('scenario') : 'reserve',
+  files: {supply:null, bank:null, dispatch:null}, extra:[], note:'',
+  submitted:false, link:{carriers:[], requested:false},
+  hardship:null, contacted:false,
+  decision:null, opsOption:'delivery', draft:null, sent:false, reviewFixed:false,
+  chart:'current', table:false, asked:[], preclear:null, flagged:{}, filter:'all'
+});
+let S = fresh();
+
+/* ---------- money model (GBP base) ---------- */
+const VOL = [96000,84000,70000,58000,40000,30000,26000,22000,20000,18000,16000,15000];
+const W0 = D(2026,11,23);
+function series(mode) {
+  const pct = mode === 'r10' ? .1 : mode === 'none' ? 0 : .2;
+  const base = VOL.map(v => v * (1 - pct));
+  const rel = new Array(12).fill(0);
+  if (mode === 'delivery') {
+    [0,0,6000,10000,14000,12000,10000,9420].forEach((b,i) => rel[i] += b);
+    VOL.forEach((v,w) => [[4,.3],[6,.4],[9,.3]].forEach(([l,f]) => { if (w + l < 12) rel[w + l] += v * .2 * f; }));
+  } else if (mode === 'none') { rel[0] = 61420; }
+  else rel[11] = 9800;
+  const sum = a => a.reduce((x,y) => x + y, 0);
+  return {base, rel, total: sum(base) + sum(rel), released: sum(rel)};
+}
+const currentMode = () => S.decision || 'r20';
+
+/* ---------- copy per scenario ---------- */
+const CASE_ID = 'RSK-2611-0482';
+const REVIEW_UPDATE = () => addBiz(TODAY, 10);
+const DECIDE_BY = () => addBiz(TODAY, 2);
+
+/* ---------- shells ---------- */
+function bizShell(inner) {
+  const r = rg();
+  const pill = S.scenario === 'clear' ? '' : `<span class="badge ${S.scenario === 'review' ? 'b-bad' : 'b-warn'} count" aria-label="1 item needs attention">1</span>`;
+  const dis = (n, label) => `<span class="dis" aria-disabled="true" title="Not part of this prototype">${ic(n)}${label}<span class="sr"> (not part of this prototype)</span></span>`;
+  return `<div class="shell">
+  <nav class="side" aria-label="Dashboard">
+    <div class="acct"><span class="av" aria-hidden="true">BC</span><span><strong>Bramble Cycles</strong><small>${esc(r.city)}, ${esc(r.country)}</small></span></div>
+    <div class="nav">
+      ${dis('home','Home')}${dis('bal','Balances')}${dis('tx','Transactions')}${dis('cust','Customers')}${dis('prod','Product catalogue')}
+      <div class="grp">Account</div>
+      <a href="#/standing" ${route().startsWith('/standing') ? 'aria-current="page"' : ''}>${ic('shield')}Account standing${pill}</a>
+      ${dis('gear','Settings')}
+    </div>
+  </nav>
+  <div>
+    <div class="topbar">
+      <div class="search" aria-hidden="true">${ic('search')}<span>Search</span></div>
+      <div class="icons" aria-hidden="true"><span>${ic('help')}</span><span>${ic('bell')}</span></div>
+    </div>
+    <main id="main" tabindex="-1">${inner}</main>
+  </div>
+</div>`;
+}
+function opsShell(inner) {
+  const r = rg();
+  const n = queueRows().filter(x => x.due === 'today' || x.hard).length;
+  return `<div class="shell ops">
+  <nav class="side" aria-label="Risk Ops">
+    <div class="acct"><span class="av ops" aria-hidden="true">RO</span><span><strong>Risk Ops</strong><small>Merchant risk, EMEA</small></span></div>
+    <div class="nav">
+      <a href="#/ops" ${route() === '/ops' || route().startsWith('/ops/') ? 'aria-current="page"' : ''}>${ic('queue')}Cases<span class="badge b-brand count" aria-label="${n} need attention today">${n}</span></a>
+      <span class="dis" aria-disabled="true" title="Not part of this prototype">${ic('doc')}Policies<span class="sr"> (not part of this prototype)</span></span>
+      <span class="dis" aria-disabled="true" title="Not part of this prototype">${ic('chart')}Model monitoring<span class="sr"> (not part of this prototype)</span></span>
+    </div>
+  </nav>
+  <div>
+    <div class="topbar">
+      <span class="internal">Internal tool concept</span>
+      <span class="who">Signed in as ${esc(r.analyst)}, Risk analyst, ${esc(r.office)}</span>
+    </div>
+    <main id="main" tabindex="-1">${inner}</main>
+  </div>
+</div>`;
+}
+
+/* ---------- business: overview ---------- */
+function statusHero() {
+  const r = rg();
+  if (S.scenario === 'review') {
+    return `<div class="status card"><div class="bd">
+      <div class="eyebrow"><span class="badge b-bad">${ic('lock')}Payouts paused</span><span class="muted">Since 18 Nov 2026</span></div>
+      <h2>We're reviewing your account and have paused payouts</h2>
+      <p>You can keep taking payments. They'll build up in your balance and be paid out when the review ends. We can't share details of this type of review while it's open.</p>
+    </div>
+    <dl class="facts">
+      <div><dt>Waiting to be paid out</dt><dd class="num">${money(84210.55, 2)}</dd></div>
+      <div><dt>Next update by</dt><dd>${dday(REVIEW_UPDATE())}</dd></div>
+      <div><dt>Taking payments</dt><dd>Yes, as normal</dd></div>
+      <div><dt>Case</dt><dd class="idcell">RSK-2611-0519</dd></div>
+    </dl>
+    <div class="ft"><button class="btn primary" type="button" data-act="contact">Tell us about a payment you can't make</button><button class="btn" type="button" data-act="contact">Contact the Risk team</button></div></div>`;
+  }
+  if (S.scenario === 'clear') {
+    return `<div class="status card"><div class="bd">
+      <div class="eyebrow"><span class="badge b-ok">${ic('check')}Good standing</span><span class="muted">Checked ${dfmt(TODAY)}</span></div>
+      <h2>Nothing needs your attention</h2>
+      <p>Payouts are on your normal schedule and nothing is being held. If that changes, you'll see it here first, with the reason and what you can do about it.</p>
+    </div>
+    <dl class="facts">
+      <div><dt>Payout schedule</dt><dd>Daily, 3 business days</dd></div>
+      <div><dt>Held in reserve</dt><dd class="num">${money(0, 2)}</dd></div>
+      <div><dt>Dispute rate, 90 days</dt><dd>0.21%</dd></div>
+    </dl></div>`;
+  }
+  const d = S.decision;
+  let badge = `<span class="badge b-warn">${ic('warn')}Rolling reserve</span>`, title = '20% of each payment is held for 90 days',
+    body = `Since 14 Nov, we've held 20% of each card payment and released it 90 days later. You can still take payments, and the other 80% is paid out on your normal schedule.`;
+  if (d === 'delivery') { badge = `<span class="badge b-info">${ic('check')}Delivery-linked release</span>`; title = `We're releasing held funds as orders are delivered`; body = `From ${dshort(TODAY)}, money held on an order comes back as soon as tracking shows it's delivered. We still hold 20% of new pre-order payments until they arrive. Orders without tracking stay on the 90-day release.`; }
+  if (d === 'r10') { badge = `<span class="badge b-warn">${ic('warn')}Rolling reserve</span>`; title = '10% of each payment is held for 90 days'; body = `We've lowered your reserve from 20% to 10% from ${dshort(TODAY)}. Money already held is released on its original date.`; }
+  if (d === 'none') { badge = `<span class="badge b-ok">${ic('check')}Reserve removed</span>`; title = 'The reserve has been removed'; body = `Everything we were holding will be in your next payout. Payouts are back on your normal schedule.`; }
+  const held = d === 'none' ? 0 : 61420;
+  const next = d === 'delivery' ? `<div><dt>Next release</dt><dd>As orders arrive</dd></div>` : d === 'none' ? `<div><dt>Next payout</dt><dd>${dday(addBiz(TODAY,1))}</dd></div>` : `<div><dt>First release</dt><dd>12 Feb 2027</dd></div>`;
+  let ft = `<a class="btn primary" href="#/standing/evidence">Reduce the reserve</a><button class="btn" type="button" data-act="contact">Contact the Risk team</button>`;
+  if (d) ft = `<button class="btn" type="button" data-act="contact">Ask for another review</button>`;
+  else if (S.submitted) ft = `<button class="btn" type="button" data-act="contact">Contact the Risk team</button>`;
+  const sub = S.submitted && !d ? `<div class="notice ok" style="margin-top:12px">${ic('check')}<p><strong>We've got your evidence.</strong> A person on the Risk team will decide by ${dday(DECIDE_BY())}. Nothing else is needed from you for now.</p></div>` : '';
+  const linkN = S.link.requested && !d ? `<div class="notice" style="margin-top:12px">${ic('info')}<p><strong>Delivery-linked release requested.</strong> We can see tracking for ${linkCover()}% of your open orders. We'll switch it on for those orders within 1 business day.</p></div>` : '';
+  return `<div class="status card"><div class="bd">
+      <div class="eyebrow">${badge}<span class="muted">Case <span class="idcell">${CASE_ID}</span></span></div>
+      <h2>${title}</h2><p>${body}</p>${sub}${linkN}
+    </div>
+    <dl class="facts">
+      <div><dt>Held so far</dt><dd class="num">${money(held, 2)}</dd></div>
+      ${next}
+      <div><dt>Still taking payments</dt><dd>Yes</dd></div>
+      <div><dt>Next scheduled review</dt><dd>${d === 'none' ? 'None' : '14 Feb 2027'}</dd></div>
+    </dl>
+    <div class="ft">${ft}</div></div>`;
+}
+
+function reasonsBlock() {
+  return `<section aria-labelledby="h-why"><h2 id="h-why">Why this is happening</h2>
+  <div class="reasons">
+    <div class="reason"><div class="k up">${ic('up')}Raised the risk</div><h3>Your sales jumped quickly</h3><div class="big num">${money(412600)}</div><p>Taken in the last 21 days. That's about 7 times what you usually take in three weeks.</p></div>
+    <div class="reason"><div class="k up">${ic('up')}Raised the risk</div><h3>Most orders haven't shipped yet</h3><div class="big">88%</div><p>Are pre-orders due to ship more than 30 days from now. If an order never arrives, the customer can ask their bank for a refund, and we cover it if you can't.</p></div>
+    <div class="reason"><div class="k down">${ic('down')}Counted in your favour</div><h3>Your track record is strong</h3><div class="big">0.21%</div><p>Dispute rate over the last 12 months, with 4 years of trading and no losses. This kept the reserve at 20%.</p></div>
+  </div>
+  <div class="notice neu" style="margin-top:12px">${ic('info')}<p>This decision used automated checks and was confirmed by a person on our Risk team on 14 Nov. You can give us your side or ask for another review at any time. <button class="btn link" type="button" data-act="how">How we make these decisions</button></p></div>
+  </section>`;
+}
+
+function chartBlock() {
+  const cur = series(currentMode()), del = series('delivery');
+  const showDel = S.chart === 'delivery' && S.decision !== 'delivery' && S.decision !== 'none';
+  const s = showDel ? del : cur;
+  const W = 660, H = 220, pl = 48, pb = 28, pt = 8, bw = (W - pl - 8) / 12;
+  const peak = Math.max(...s.base.map((b, i) => b + s.rel[i]));
+  const max = Math.max(100000, Math.ceil(peak / 25000) * 25000);
+  const y = v => pt + (H - pt - pb) * (1 - v / max);
+  const ticks = []; for (let t = 0; t <= max; t += max > 100000 ? 50000 : 25000) ticks.push(t);
+  let bars = '';
+  s.base.forEach((b, i) => {
+    const x = pl + i * bw + bw * .18, w = bw * .64, r = s.rel[i];
+    const wk = new Date(W0); wk.setDate(wk.getDate() + i * 7);
+    bars += `<rect x="${x.toFixed(1)}" y="${y(b).toFixed(1)}" width="${w.toFixed(1)}" height="${(y(0) - y(b)).toFixed(1)}" fill="#635bff" rx="2"><title>Week of ${dshort(wk)}: ${money(b)} paid out from new sales</title></rect>`;
+    if (r > 0) bars += `<rect x="${x.toFixed(1)}" y="${y(b + r).toFixed(1)}" width="${w.toFixed(1)}" height="${(y(b) - y(b + r)).toFixed(1)}" fill="url(#hatch)" stroke="#0e9f6e" stroke-width="1" rx="2"><title>Week of ${dshort(wk)}: ${money(r)} released from the reserve</title></rect>`;
+    if (i % 2 === 0) bars += `<text x="${(x + w / 2).toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="11" fill="#596171">${dshort(wk)}</text>`;
+  });
+  const grid = ticks.map(t => `<line x1="${pl}" x2="${W}" y1="${y(t)}" y2="${y(t)}" stroke="#ebeef1"/><text x="${pl - 8}" y="${y(t) + 4}" text-anchor="end" font-size="11" fill="#596171">${compact(t)}</text>`).join('');
+  const label = showDel ? 'with delivery-linked release' : (S.decision ? 'with your current arrangement' : 'with the current 20% reserve');
+  const desc = `Expected weekly payouts for the next 12 weeks ${label}. Total ${money(s.total)}, of which ${money(s.released)} is released from the reserve.`;
+  const rows = s.base.map((b, i) => { const wk = new Date(W0); wk.setDate(wk.getDate() + i * 7); return `<tr><td>${dshort(wk)}</td><td class="r num">${money(b)}</td><td class="r num">${money(s.rel[i])}</td><td class="r num">${money(b + s.rel[i])}</td></tr>`; }).join('');
+  const canCompare = !S.decision || S.decision === 'r10' || S.decision === 'r20';
+  return `<section aria-labelledby="h-cash"><h2 id="h-cash">What it means for your cash<span class="r muted">Next 12 weeks, based on your sales forecast</span></h2>
+  <div class="card"><figure class="chartwrap chart">
+    <div class="chart-top">
+      ${canCompare ? `<div class="seg" role="radiogroup" aria-label="Show payouts">
+        <label><input type="radio" id="chart-current" name="chart" value="current" ${!showDel ? 'checked' : ''}><span>Current reserve</span></label>
+        <label><input type="radio" id="chart-delivery" name="chart" value="delivery" ${showDel ? 'checked' : ''}><span>If you link deliveries</span></label>
+      </div>` : '<span></span>'}
+      <div class="legend" aria-hidden="true"><span><i class="sw base"></i>Paid out from new sales</span><span><i class="sw rel"></i>Released from reserve</span></div>
+    </div>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="ch-t ch-d"><title id="ch-t">Weekly payouts, ${label}</title><desc id="ch-d">${esc(desc)}</desc>
+      <defs><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="4" fill="#bdf0d6"/><rect width="2" height="4" fill="#0e9f6e"/></pattern></defs>
+      ${grid}${bars}
+    </svg>
+    <figcaption class="sr">${esc(desc)}</figcaption>
+    ${canCompare ? `<div class="totals" aria-live="polite">
+      <div class="${!showDel ? 'on' : ''}"><span>Paid to you, current reserve</span><strong class="num">${money(cur.total)}</strong></div>
+      <div class="${showDel ? 'on' : ''}"><span>Paid to you, if you link deliveries</span><strong class="num">${money(del.total)}</strong> <span style="display:inline" class="muted">(${money(del.total - cur.total)} sooner)</span></div>
+    </div>` : ''}
+    <p class="fine">Forecast uses your last 21 days of sales, tapering as pre-orders slow. Real payouts will differ.
+      <button class="btn link" id="tbltoggle" type="button" data-act="table" aria-expanded="${S.table}" aria-controls="cash-table">${S.table ? 'Hide' : 'Show'} as a table</button></p>
+    <div id="cash-table" ${S.table ? '' : 'hidden'} class="tablewrap" style="margin-top:8px"><table><caption class="sr">${esc(desc)}</caption><thead><tr><th scope="col">Week of</th><th scope="col" class="r">From new sales</th><th scope="col" class="r">From reserve</th><th scope="col" class="r">Total</th></tr></thead><tbody>${rows}</tbody></table></div>
+  </figure></div></section>`;
+}
+
+function waysBlock() {
+  if (S.decision === 'none') return '';
+  const r = rg();
+  const linked = S.link.requested;
+  return `<section aria-labelledby="h-ways"><h2 id="h-ways">Ways to reduce it</h2>
+  <div class="opts">
+    <div class="opt"><h3>Link your deliveries ${S.decision === 'delivery' ? '<span class="badge b-ok">On</span>' : linked ? '<span class="badge b-info">Requested</span>' : '<span class="badge b-brand">Fastest</span>'}</h3>
+      <p>Connect your tracking and we release the money held on each order once it's delivered, instead of after 90 days. We only read order numbers, tracking status and delivery dates.</p>
+      <div class="act">${linked || S.decision === 'delivery' ? `<button class="btn" type="button" data-act="link">Manage</button>` : `<button class="btn primary" type="button" data-act="link">Link deliveries</button>`}</div></div>
+    <div class="opt"><h3>Show us you can fulfil the orders ${S.submitted ? '<span class="badge b-ok">Sent</span>' : ''}</h3>
+      <p>A supplier order, a recent bank statement and your dispatch plan. A person reviews it within 2 business days.</p>
+      <div class="act">${S.submitted ? `<a class="btn" href="#/standing/evidence">View what you sent</a>` : `<a class="btn" href="#/standing/evidence">Send evidence</a>`}</div></div>
+    <div class="opt"><h3>Change how you take pre-orders</h3>
+      <p>Take a deposit now and charge the rest when you ship. Less money is at risk before delivery, so future reserves are smaller or not needed. Card authorisations expire after about 7 days, so save the card and charge it at dispatch.</p>
+      <div class="act"><span class="dis btn" aria-disabled="true" title="Not part of this prototype">Read the guide<span class="sr"> (not part of this prototype)</span></span></div></div>
+  </div></section>`;
+}
+
+function timelineBlock() {
+  const items = [];
+  if (S.scenario === 'review') {
+    items.push(['done','18 Nov','Payouts paused','Review opened. Payments still accepted.']);
+    items.push(['done','18 Nov','Email sent to you','To the account owner.']);
+    if (S.contacted) items.push(['done', dshort(TODAY), 'You contacted us', S.hardship ? `Payment due: ${esc(S.hardship.what)}. Marked as a priority.` : 'Added to your case.']);
+    items.push(['now', dshort(TODAY), 'Today', '']);
+    items.push(['', dday(REVIEW_UPDATE()), 'Next update from us', 'Sooner if the review finishes.']);
+  } else {
+    items.push(['done','3 Nov','Sales spike starts','Pre-orders open on your new model.']);
+    items.push(['done','14 Nov','Reserve applied','20% rolling, 90 days. Checked by a person.']);
+    if (S.link.requested) items.push(['done', dshort(TODAY), 'Delivery-linked release requested', `${S.link.carriers.join(', ')} connected.`]);
+    if (S.submitted) items.push(['done', dshort(TODAY), 'Evidence sent', `Decision due by ${dday(DECIDE_BY())}.`]);
+    if (S.contacted) items.push(['done', dshort(TODAY), 'You contacted us', S.hardship ? `Payment due: ${esc(S.hardship.what)}. Marked as a priority.` : 'Added to your case.']);
+    if (S.decision) items.push(['done', dshort(TODAY), 'Decision updated', decisionLabel(S.decision)]);
+    items.push(['now', dshort(TODAY), 'Today', '']);
+    if (S.decision !== 'none' && S.decision !== 'delivery') items.push(['', '12 Feb 2027', 'First release', `About ${money(9800)}.`]);
+    if (S.decision !== 'none') items.push(['', '14 Feb 2027', 'Scheduled review', 'We look again even if you do nothing.']);
+  }
+  return `<div class="panel"><h2>Timeline</h2><ol class="tl">${items.map(([c,t,h,d]) => `<li class="${c}"><span class="t">${t}</span><strong>${h}</strong>${d ? `<br><span class="muted">${d}</span>` : ''}</li>`).join('')}</ol></div>`;
+}
+const decisionLabel = d => ({delivery:'Delivery-linked release', r10:'Reserve lowered to 10%', r20:'20% reserve kept', none:'Reserve removed'})[d];
+
+function rightsBlock() {
+  const r = rg();
+  return `<div class="panel"><h2>Your options if you disagree</h2>
+    <p>Ask for another review and tell us what we've missed. ${esc(r.dataNote)}</p>
+    <p style="margin:0">If you're still unhappy after our final response, you may be able to take it to the ${esc(r.ombuds)}. ${esc(r.ombudsWho)}</p></div>`;
+}
+
+/* ---------- assistant ---------- */
+const QA = {
+  reserve: [
+    {q:'Why 20%?', k:['why 20','20%','twenty','why so much','percent'], a:() => `<p>It's sized to cover refunds on pre-orders that might not be delivered. You've taken ${money(412600)} in 21 days and almost all of it ships more than 30 days from now.</p><p>Your low dispute rate kept it at 20%. Businesses with a weaker history usually see more held.</p>`, s:['Reserve notice, 14 Nov','Payments, last 21 days']},
+    {q:'When do I get it back?', k:['when','back','release','return'], a:() => S.decision === 'delivery' ? `<p>Each order's held amount comes back once tracking shows it's delivered. Based on your dispatch plan, that's about ${money(58000)} by the end of January.</p>` : `<p>Each amount comes back 90 days after the payment it was taken from. The first release is on 12 Feb 2027, about ${money(9800)}.</p><p>If you link your deliveries, held money comes back as each order arrives instead.</p>`, s:['Reserve terms','Payout schedule']},
+    {q:'Will my customers notice?', k:['customer','checkout','notice','affect'], a:() => `<p>No. Checkout, payments and refunds all work as normal. The reserve only changes how much reaches your bank account and when.</p>`, s:['Account settings']},
+    {q:"What's my risk score?", k:['score','rating','threshold','algorithm','model'], a:() => `<p>We don't share scores or thresholds. They change often, and publishing them would help people get around our checks.</p><p>What we can share is what drove this decision: how fast your sales grew, how long your deliveries take, and your strong dispute history.</p>`, s:['How we make these decisions']},
+    {q:'Can I refund customers?', k:['refund'], a:() => `<p>Yes. Refunds come from your available balance first. If that isn't enough, we use the reserve, so your customers always get their money back.</p>`, s:['Reserve terms']},
+    {q:'What if I move provider?', k:['move','switch','leave','another provider','close'], a:() => `<p>Money already held stays in reserve until its release date, wherever you take payments in future.</p><p>If cash flow is the problem, tell us. Changing how the reserve works is usually faster than moving.</p>`, s:['Reserve terms']}
+  ],
+  review: [
+    {q:'Why are payouts paused?', k:['why','reason','what did','wrong'], a:() => `<p>We can't share the reasons while this type of review is open. That's the same for every account in this kind of review.</p><p>It doesn't stop you taking payments.</p>`, s:['Review notice, 18 Nov']},
+    {q:'When will it end?', k:['when','end','long','finish'], a:() => `<p>We'll update you by ${dday(REVIEW_UPDATE())}. If it finishes sooner, we'll tell you straight away and pay out your balance on your next payout date.</p>`, s:['Case RSK-2611-0519']},
+    {q:'Can I still take payments?', k:['take payment','accept','sell','checkout'], a:() => `<p>Yes. Payments go into your balance as normal and are paid out when the review ends.</p>`, s:['Account status']},
+    {q:`I can't pay staff`, k:['staff','payroll','wages','rent','supplier','tax','hmrc','revenue','pay'], a:() => `<p>Tell us what's due and when, and a person will look at it within 1 business day.</p><p><button class="btn sm primary" type="button" data-act="contact">Tell us about it</button></p>`, s:['Hardship process']}
+  ],
+  clear: [
+    {q:'Will a big sale trigger a reserve?', k:['sale','launch','spike','big','pre-order','preorder'], a:() => `<p>It can, if sales jump fast and orders ship weeks later. Tell us about it beforehand using the form on this page and we'll take it into account.</p>`, s:['Pre-clearance']},
+    {q:'What do you check?', k:['check','watch','monitor','look'], a:() => `<p>How fast your sales change, how long deliveries take, your refund and dispute rates, and changes to your business details or bank account.</p>`, s:['How we make these decisions']},
+    {q:'How would I find out?', k:['find out','tell','notify','email'], a:() => `<p>By email to the account owner, and here on this page with the reason and what you can do. Where we can, we tell you before money is held.</p>`, s:['Notifications']}
+  ]
+};
+function answer(text) {
+  const t = text.toLowerCase();
+  const set = QA[S.scenario];
+  const hit = set.find(x => x.q.toLowerCase() === t) || set.find(x => x.k.some(k => t.includes(k)));
+  if (hit) return {q:text, a:hit.a(), s:hit.s};
+  const id = S.scenario === 'review' ? 'RSK-2611-0519' : CASE_ID;
+  return {q:text, a:`<p>I can only answer from your account and this case, and I don't have a reliable answer to that.</p><p>I've added your question to case <span class="idcell">${id}</span> so a person on the Risk team can reply, usually within 1 business day.</p>`, s:['Handed to a person'], handoff:true};
+}
+function assistBlock() {
+  const set = QA[S.scenario];
+  return `<div class="panel asst" aria-labelledby="h-asst"><h2 id="h-asst">Ask about this</h2>
+    <p class="muted" style="font-size:13px">Answers come only from your account and this case. Anything it can't answer goes to a person.</p>
+    <div class="chips">${set.map((x, i) => `<button class="chip" id="chip-${i}" type="button" data-act="ask" data-q="${esc(x.q)}">${esc(x.q)}</button>`).join('')}</div>
+    <form data-form="ask" autocomplete="off"><label for="askin" class="sr">Your question</label><input class="input" id="askin" name="q" maxlength="200" placeholder="Ask a question"><button class="btn" type="submit">Ask</button></form>
+    <div class="log" id="asklog" aria-live="polite">${S.asked.slice().reverse().map(x => `<div class="qa"><div class="q">${esc(x.q)}</div><div class="a">${x.a}<div class="src">${x.s.map(s => `<span>${esc(s)}</span>`).join('')}</div></div></div>`).join('')}</div>
+    <p class="fine">In this prototype the answers are scripted to show how it should behave.</p></div>`;
+}
+
+function preclearBlock() {
+  const p = S.preclear;
+  if (p && p.done) return `<section aria-labelledby="h-pre"><h2 id="h-pre">Planning a big sales event?</h2><div class="notice ${p.risky ? 'warn' : 'ok'}" role="status">${ic(p.risky ? 'info' : 'check')}<p>${p.msg}</p></div><p style="margin-top:8px"><button class="btn link" type="button" data-act="preagain">Tell us about another event</button></p></section>`;
+  const e = (p && p.err) || {};
+  const v = (p && p.v) || {};
+  return `<section aria-labelledby="h-pre"><h2 id="h-pre">Planning a big sales event?</h2>
+  <p class="muted" style="max-width:640px">Tell us before a launch, pre-order or sale and we'll factor it in, so a jump in sales doesn't take you by surprise with held funds.</p>
+  <form class="card" data-form="pre" novalidate><div class="bd">
+    <div class="row2">
+      <div class="field"><label for="pe-type">What's happening</label><select class="input" id="pe-type" name="type">${['Product launch','Pre-orders','Seasonal sale','Crowdfunding','Something else'].map(o => `<option ${v.type === o ? 'selected' : ''}>${o}</option>`).join('')}</select></div>
+      <div class="field"><label for="pe-start">Starts on</label><input class="input" type="date" id="pe-start" name="start" min="${iso(TODAY)}" value="${esc(v.start || '')}" ${e.start ? `aria-invalid="true" aria-describedby="pe-start-e"` : ''}>${e.start ? `<div class="err" id="pe-start-e">${ic('warn')}${e.start}</div>` : ''}</div>
+    </div>
+    <div class="row2">
+      <div class="field"><label for="pe-amt">Sales you expect, in total</label><input class="input" id="pe-amt" name="amt" inputmode="decimal" value="${esc(v.amt || '')}" aria-describedby="pe-amt-h${e.amt ? ' pe-amt-e' : ''}" ${e.amt ? 'aria-invalid="true"' : ''}><div class="hint" id="pe-amt-h">In ${rg().cur}. A rough number is fine.</div>${e.amt ? `<div class="err" id="pe-amt-e">${ic('warn')}${e.amt}</div>` : ''}</div>
+      <div class="field"><label for="pe-ship">Time from order to delivery</label><select class="input" id="pe-ship" name="ship">${['Same week','1 to 4 weeks','4 to 12 weeks','More than 12 weeks'].map(o => `<option ${v.ship === o ? 'selected' : ''}>${o}</option>`).join('')}</select></div>
+    </div>
+  </div><div class="ft"><button class="btn primary" type="submit">Send</button></div></form></section>`;
+}
+
+function viewStanding() {
+  const sc = S.scenario;
+  let left = statusHero();
+  if (sc === 'reserve') left += reasonsBlock() + chartBlock() + waysBlock();
+  if (sc === 'review') left += `<section aria-labelledby="h-can"><h2 id="h-can">What you can do</h2><div class="opts">
+      <div class="opt"><h3>Keep trading</h3><p>Checkout, payments and refunds work as normal. Refunds come from your balance.</p></div>
+      <div class="opt"><h3>Check your details are up to date</h3><p>We may email the account owner with questions. Replying quickly is the best way to shorten the review.</p></div>
+      <div class="opt"><h3>Tell us about urgent payments</h3><p>If the pause means you can't pay staff, suppliers or ${esc(rg().tax)} in the next 14 days, tell us. A person will look at it within 1 business day.</p><div class="act"><button class="btn" type="button" data-act="contact">Tell us</button></div></div>
+    </div>
+    <div class="notice neu" style="margin-top:12px">${ic('info')}<p>Some reviews come with legal limits on what any payment provider can share while they're open. We show this note on every review, so it doesn't tell you anything about yours.</p></div></section>`;
+  if (sc === 'clear') left += `<section aria-labelledby="h-watch"><h2 id="h-watch">What we keep an eye on</h2><div class="tablewrap"><table><caption class="sr">Signals we monitor and how your account looks today</caption><thead><tr><th scope="col">Signal</th><th scope="col">Your account</th><th scope="col">Status</th></tr></thead><tbody>
+      <tr><td>Change in sales volume</td><td>Within your usual range</td><td><span class="badge b-ok">${ic('check')}Normal</span></td></tr>
+      <tr><td>Time from order to delivery</td><td>3 to 5 days</td><td><span class="badge b-ok">${ic('check')}Normal</span></td></tr>
+      <tr><td>Disputes, last 90 days</td><td>0.21% of payments</td><td><span class="badge b-ok">${ic('check')}Normal</span></td></tr>
+      <tr><td>Refunds, last 90 days</td><td>1.4% of payments</td><td><span class="badge b-ok">${ic('check')}Normal</span></td></tr>
+      <tr><td>Business and bank details</td><td>No changes in 12 months</td><td><span class="badge b-ok">${ic('check')}Normal</span></td></tr>
+    </tbody></table></div></section>` + preclearBlock();
+  const right = `${assistBlock()}${sc !== 'clear' ? timelineBlock() : ''}${sc === 'reserve' ? rightsBlock() : ''}`;
+  return bizShell(`<div class="pagehead"><div><h1 tabindex="-1">Account standing</h1><p class="sub">Anything we're holding, reviewing or watching on your account, why, and what you can do about it.</p></div></div>
+  <div class="cols"><div class="stack">${left}</div><aside class="stack-s" aria-label="Help and timeline">${right}</aside></div>`);
+}
+
+/* ---------- business: evidence ---------- */
+const REQS = [
+  {id:'supply', t:'Proof you can make or source the orders', d:'A supplier invoice, purchase order or contract that covers your pre-orders.',
+    samples:[{n:'halden-frames-PO-3381.pdf', s:'Purchase order, 2 Nov 2026, 1,400 frames', size:'412 KB'}]},
+  {id:'bank', t:'A recent business bank statement', d:'From the last 3 months, showing your business name.',
+    samples:[{n:'statement-june-2026.pdf', s:'Business current account, June 2026', size:'188 KB'},{n:'statement-oct-2026.pdf', s:'Business current account, October 2026', size:'204 KB'}]},
+  {id:'dispatch', t:'Your dispatch plan', d:'A list of open orders with the date you expect each one to ship. A spreadsheet export is fine.',
+    samples:[{n:'preorders-dispatch-plan.csv', s:'Exported 19 Nov, 1,310 rows', size:'96 KB'},{n:'preorders-dispatch-plan-v2.csv', s:'Exported 20 Nov, 1,310 rows', size:'98 KB'}]}
+];
+function checkFile(req, f) {
+  const r = rg(), c = [];
+  const ext = (f.name.split('.').pop() || '').toLowerCase();
+  if (!['pdf','png','jpg','jpeg','csv','xlsx'].includes(ext)) return {st:'fail', c:[['fail',`We can't read .${esc(ext)} files. Use PDF, PNG, JPG, CSV or XLSX.`]]};
+  if (f.bytes === 0) return {st:'fail', c:[['fail','This file is empty. Try exporting it again.']]};
+  if (f.bytes > 10 * 1024 * 1024) return {st:'fail', c:[['fail','This file is over 10 MB. Try a smaller export or split it.']]};
+  if (f.local) return {st:'warn', c:[['pass','File type and size are fine'],['info',"We couldn't check what's inside automatically, so a person will read it. That can add a day."]]};
+  if (f.name === 'halden-frames-PO-3381.pdf') return {st:'pass', c:[['pass','Your business name matches'],['pass','Dated 2 Nov 2026, after pre-orders opened'],['pass','1,400 frames covers your 1,310 open orders']]};
+  if (f.name === 'statement-june-2026.pdf') return {st:'fail', c:[['pass','Your business name matches'],['fail','This statement is from June 2026, which is more than 3 months ago. Add one from August, September or October.']]};
+  if (f.name === 'statement-oct-2026.pdf') return {st:'pass', c:[['pass','Your business name matches'],['pass','From October 2026'],['pass',`Shows a closing balance of ${money(38250)}`]]};
+  if (f.name === 'preorders-dispatch-plan.csv') return {st:'warn', c:[['pass','1,310 orders, matching your open pre-orders'],['warn','96 orders have no dispatch date. You can still send it, but we will release less until those are filled in.']]};
+  if (f.name === 'preorders-dispatch-plan-v2.csv') return {st:'pass', c:[['pass','1,310 orders, matching your open pre-orders'],['pass','Every order has a dispatch date'],['pass','Last orders ship by 29 Jan 2027']]};
+  return {st:'warn', c:[['info','A person will read this file.']]};
+}
+function viewEvidence() {
+  if (S.scenario !== 'reserve' || S.decision) {
+    return bizShell(`<div class="crumbs"><a href="#/standing">Account standing</a> / Send evidence</div><div class="pagehead"><div><h1 tabindex="-1">Nothing to send right now</h1><p class="sub">${S.decision ? 'Your case already has a decision. If you disagree with it, you can ask for another review.' : 'There isn\'t a reserve on your account that evidence would change.'}</p></div></div><a class="btn" href="#/standing">Back to Account standing</a>`);
+  }
+  const res = REQS.map(q => S.files[q.id] ? checkFile(q, S.files[q.id]) : null);
+  const added = res.filter(Boolean).length;
+  const fails = res.filter(x => x && x.st === 'fail').length, warns = res.filter(x => x && x.st === 'warn').length;
+  const ro = S.submitted;
+  const rows = REQS.map((q, i) => {
+    const f = S.files[q.id], r = res[i];
+    const st = r ? r.st : '';
+    const mark = st === 'pass' ? ic('check') : st === 'fail' ? ic('x') : st === 'warn' ? ic('warn') : i + 1;
+    const stText = st === 'pass' ? 'Looks good' : st === 'fail' ? 'Needs replacing' : st === 'warn' ? 'Can be sent, with a note' : 'Not added';
+    return `<div class="req"><span class="n ${st}" aria-hidden="true">${mark}</span>
+      <div><h3 id="rq-${q.id}">${q.t}</h3><p>${q.d}</p>
+      ${f ? `<div class="file">${ic('file')}<span class="fn">${esc(f.name)}</span><span class="muted">${esc(f.size)}</span>
+        <span class="badge ${st === 'pass' ? 'b-ok' : st === 'fail' ? 'b-bad' : 'b-warn'}">${stText}</span></div>
+        <ul class="checks" aria-label="Checks for ${esc(f.name)}">${r.c.map(([k,m]) => `<li><span class="c-${k}">${ic(k === 'pass' ? 'check' : k === 'fail' ? 'x' : k === 'warn' ? 'warn' : 'info')}</span><span class="sr">${k === 'pass' ? 'Passed' : k === 'fail' ? 'Problem' : k === 'warn' ? 'Warning' : 'Note'}: </span><span class="msg">${m}</span></li>`).join('')}</ul>` : `<span class="sr">Status: not added.</span>`}
+      </div>
+      <div>${ro ? '' : `<button class="btn ${f ? '' : 'primary'}" id="pick-${q.id}" type="button" data-act="pick" data-req="${q.id}" aria-describedby="rq-${q.id}">${f ? 'Replace' : 'Add file'}</button>`}</div></div>`;
+  }).join('');
+  let summary;
+  if (ro) summary = `<div class="notice ok" role="status">${ic('check')}<p><strong>Sent on ${dfmt(TODAY)}.</strong> A person on the Risk team will decide by ${dday(DECIDE_BY())}. We'll email you and update Account standing.</p></div>`;
+  else if (!added) summary = `<p class="muted" style="margin:0">Add at least one file to send. All three gives the quickest decision.</p>`;
+  else summary = `<p style="margin:0"><strong>${added} of 3 added.</strong> ${fails ? `${fails} need${fails === 1 ? 's' : ''} replacing before it will help.` : ''} ${warns ? `${warns} can be sent but may slow things down.` : ''} ${!fails && !warns && added === 3 ? 'Everything looks good.' : ''}</p>`;
+  return bizShell(`<div class="crumbs"><a href="#/standing">Account standing</a> / Send evidence</div>
+  <div class="pagehead"><div><h1 tabindex="-1">Send evidence to reduce the reserve</h1><p class="sub">These three things usually settle a pre-order review. We check each file as you add it, so you can fix problems before you send rather than waiting days to hear back.</p></div></div>
+  <div class="cols"><div class="stack-s">
+    <div class="reqs">${rows}</div>
+    <div class="card"><div class="bd"><div class="field" style="margin:0"><label for="note">Anything else we should know? <span class="muted" style="font-weight:400">(optional)</span></label>
+      <textarea id="note" maxlength="1000" aria-describedby="note-h" ${ro ? 'readonly' : ''} placeholder="For example, a new supplier, a delay, or why sales jumped">${esc(S.note)}</textarea><div class="hint" id="note-h"><span id="notecount">${S.note.length}</span> of 1,000 characters</div></div></div>
+      <div class="ft" style="justify-content:space-between"><div aria-live="polite" style="flex:1">${summary}</div>${ro ? `<a class="btn" href="#/standing">Back to Account standing</a>` : `<button class="btn primary" type="button" data-act="submit" ${added ? '' : 'aria-disabled="true"'}>Send to the Risk team</button>`}</div></div>
+  </div>
+  <aside class="stack-s" aria-label="About your files">
+    <div class="panel"><h2>What happens to your files</h2><p>Only the Risk team and the people who review your case can see them. We keep them for as long as the law requires us to keep records of your account, then delete them.</p><p class="fine" style="margin:0">In this prototype nothing leaves your browser. Files you pick from your device are only checked for name, type and size.</p></div>
+    <div class="panel"><h2>What we don't need</h2><ul><li>Personal bank statements</li><li>Customer names or addresses</li><li>Photos of ID, unless we ask</li></ul></div>
+  </aside></div>`);
+}
+
+/* ---------- ops ---------- */
+function queueRows() {
+  const r = rg();
+  const rows = [
+    {id:'RSK-2611-0477', biz:'Harbour Lane Travel', cc:'IE', trig:'Bookings taken 9 months ahead', exp:212000, cur:'EUR', due:'today', dueT:'Due in 5 h', hard:true, st:'New'},
+    {id:'RSK-2611-0501', biz:'Corrib Events', cc:'IE', trig:'Event cancelled, refunds due', exp:46000, cur:'EUR', due:'today', dueT:'Due in 1 h', st:'In progress'},
+    {id:'RSK-2611-0490', biz:'Northwick Supplements', cc:'GB', trig:'Dispute rate 1.1% and rising', exp:18400, cur:'GBP', due:'2d', dueT:'Due in 2 days', st:'Waiting on business'},
+    {id:'RSK-2611-0493', biz:'Lumen Aligners', cc:'GB', trig:'Refund spike after price change', exp:9900, cur:'GBP', due:'3d', dueT:'Due in 3 days', st:'New'},
+    {id:'RSK-2611-0508', biz:'Greyfriars Ceramics', cc:'GB', trig:'New payout bank account', exp:2100, cur:'GBP', due:'4d', dueT:'Due in 4 days', st:'New'}
+  ];
+  if (S.scenario === 'reserve') rows.splice(S.hardship ? 0 : 2, 0, {id:CASE_ID, biz:'Bramble Cycles', cc:S.region, trig:'Pre-order volume spike', exp:71300 * r.fx, cur:r.cur, due: S.submitted ? 'today' : '2d', dueT: S.sent ? 'Decided' : S.submitted ? `Evidence in, due ${dday(DECIDE_BY())}` : 'Due 14 Feb review', hard:!!S.hardship, st: S.sent ? 'Closed' : S.submitted || S.link.requested ? 'Evidence received' : 'Monitoring', live:true});
+  if (S.scenario === 'review') rows.splice(S.hardship ? 0 : 1, 0, {id:'RSK-2611-0519', biz:'Bramble Cycles', cc:S.region, trig:'Restricted review', exp:null, cur:r.cur, due:'today', dueT: S.sent ? 'Notice sent' : 'Notice due today', hard:!!S.hardship, st: S.sent ? 'Waiting on FCC' : 'Notice needed', live:true, restricted:true});
+  return rows;
+}
+function viewQueue() {
+  const all = queueRows();
+  const rows = all.filter(x => S.filter === 'all' || (S.filter === 'today' && x.due === 'today') || (S.filter === 'hard' && x.hard));
+  const fm = (v, c) => v == null ? '<span class="muted">Restricted</span>' : new Intl.NumberFormat(c === 'EUR' ? 'en-IE' : 'en-GB', {style:'currency', currency:c, maximumFractionDigits:0}).format(Math.round(v / 100) * 100);
+  const f = (k, l, n) => `<button class="chip" id="f-${k}" type="button" data-act="filter" data-f="${k}" aria-pressed="${S.filter === k}">${l} <span class="muted">${n}</span></button>`;
+  return opsShell(`<div class="pagehead"><div><h1 tabindex="-1">Merchant risk cases</h1><p class="sub">Sorted by what's at stake and how soon it's due. Cases where the business has told us about an urgent payment go to the top.</p></div></div>
+  <div class="filters" role="group" aria-label="Filter cases">${f('all','All', all.length)}${f('today','Due today', all.filter(x => x.due === 'today').length)}${f('hard','Urgent payment flagged', all.filter(x => x.hard).length)}</div>
+  <div class="tablewrap"><table><caption class="sr">Open merchant risk cases</caption><thead><tr><th scope="col">Case</th><th scope="col">Business</th><th scope="col">Why it's here</th><th scope="col" class="r">Stressed exposure</th><th scope="col">Due</th><th scope="col">Status</th></tr></thead><tbody>
+  ${rows.length ? rows.map(x => `<tr class="${x.live ? 'rowlink' : 'mute'}" ${x.live ? 'data-act="opencase"' : ''}>
+    <td class="idcell">${x.live ? `<a href="#/ops/case">${x.id}</a>` : `${x.id}<span class="sr"> (not part of this prototype)</span>`}</td>
+    <td>${esc(x.biz)} <span class="muted">${x.cc}</span>${x.hard ? ` <span class="badge b-bad">Urgent payment</span>` : ''}</td>
+    <td>${x.restricted ? `<span class="badge">${ic('lock')}Restricted</span>` : esc(x.trig)}</td>
+    <td class="r num">${fm(x.exp, x.cur)}</td><td>${x.dueT}</td>
+    <td><span class="badge ${x.st === 'Closed' ? 'b-ok' : x.st.startsWith('Evidence') || x.st === 'Notice needed' ? 'b-info' : ''}">${x.st}</span></td></tr>`).join('') : `<tr><td colspan="6" class="muted">No cases match this filter.</td></tr>`}
+  </tbody></table></div>
+  ${S.scenario === 'clear' ? `<div class="notice neu" style="margin-top:12px">${ic('info')}<p>Bramble Cycles has no open case in this scenario. Switch the scenario at the top to see its case.</p></div>` : ''}
+  <p class="fine">Only the Bramble Cycles row opens in this prototype.</p>`);
+}
+
+const SIGNALS = () => {
+  const r = rg();
+  const s = [
+    {t:'Volume is 7.0 times the 90-day average', d:`${money(412600)} in 21 days`, w:.9},
+    {t:'Average order is much higher than usual', d:`${money(1850)} against a usual ${money(420)}`, w:.45},
+    {t:'88% of recent volume ships in more than 30 days', d:'Pre-orders for the new model', w:.8},
+    {t:'Dispute rate is low and stable', d:'0.21% over 12 months, never above 0.4%', w:-.55},
+    {t:'4 years trading with no losses', d:'No negative balance, no prior reserves', w:-.4},
+    {t:`Filings with ${r.registry} are up to date`, d:'No director or ownership changes in 12 months', w:-.2},
+    {t:'Spike has a clear public cause', d:'Product video shared widely on 3 Nov. Confirmed by analyst.', w:-.25}
+  ];
+  if (S.link.requested) s.push({t:'Delivery tracking connected', d:`${S.link.carriers.join(', ')}. Covers ${linkCover()}% of open orders.`, w:-.35});
+  if (S.files.dispatch) s.push({t:'Dispatch plan received', d: S.files.dispatch.name.includes('v2') ? 'All 1,310 orders dated. Last ships 29 Jan.' : '96 orders missing a dispatch date', w: S.files.dispatch.name.includes('v2') ? -.3 : -.15});
+  return s;
+};
+const OPTIONS = [
+  {k:'none', t:'Remove the reserve', cover:'0.0x', held:0, rel:'Next payout', note:'Leaves the stressed case uncovered'},
+  {k:'r10', t:'10% rolling, 90 days', cover:'1.4x', held:99200, rel:'From 12 Feb', note:'Over-holds, and the gap grows as orders ship'},
+  {k:'r20', t:'Keep 20% rolling, 90 days', cover:'1.9x', held:137000, rel:'From 12 Feb', note:'Current setting. Holds nearly twice what is at risk'},
+  {k:'delivery', t:'Delivery-linked release, 20% cap', cover:'1.2x', held:84200, rel:'As delivered', note:'Tracks what is still undelivered', suggest:true}
+];
+function linkCover() { const c = S.link.carriers; let p = 0; if (c.includes('Royal Mail') || c.includes('An Post')) p += 48; if (c.some(x => x.startsWith('DPD'))) p += 31; if (c.includes('Evri')) p += 12; if (c.includes('Shopify orders')) p += 9; return Math.min(p, 100); }
+
+function draftFor(opt) {
+  const r = rg(), n = r.owner.split(' ')[0];
+  if (S.scenario === 'review') {
+    if (!S.reviewFixed) return `Hi ${n},\n\nWe've paused your payouts because the bank account you added on 16 Nov matched an entry on a sanctions screening list. Our financial crime team is investigating and we'll let you know the outcome.\n\nRisk team`;
+    return `Hi ${n},\n\nWe're reviewing your account and have paused payouts while we do. You can keep taking payments as normal, and they'll be paid out when the review ends.\n\nWe can't share details of this type of review while it's open. We'll update you by ${dday(REVIEW_UPDATE())}.\n\nIf the pause means you can't pay staff, suppliers or ${r.tax} in the next 14 days, reply and tell us. We'll prioritise your case.\n\nRisk team`;
+  }
+  const ev = S.submitted ? 'Thanks for sending your supplier order, bank statement and dispatch plan. They helped.\n\n' : '';
+  const tail = `A person on our Risk team reviewed your case and made this decision. If you think we've got it wrong, reply to this email or ask for another review in Account standing. If you're still unhappy after that, you may be able to take your complaint to the ${r.ombuds}.\n\nRisk team`;
+  const body = {
+    delivery: `From today, we'll release the money held on each order as soon as tracking shows it's been delivered, instead of waiting 90 days. We'll keep holding 20% of new pre-order payments until those orders arrive. Orders without tracking stay on the 90-day release for now.\n\nBased on your dispatch plan, we expect to release about ${money(58000)} by the end of January.`,
+    r10: `From today, we're lowering your reserve from 20% to 10% of each payment. Money already held is released on its original date, starting 12 Feb.\n\nThat means about ${money(37800)} more reaches your bank over the next 6 weeks.`,
+    r20: `We've looked again and we're keeping the 20% reserve for now. Most of your pre-orders haven't shipped yet, and that's the part we need to cover.\n\nWe'll look again on 14 Feb, or sooner if you link your delivery tracking. About ${money(9800)} is released on 12 Feb.`,
+    none: `We're removing the reserve. The ${money(61420)} we've been holding will be in your next payout on ${dday(addBiz(TODAY, 1))}.`
+  }[opt];
+  return `Hi ${n},\n\n${ev}${body}\n\n${tail}`;
+}
+function syll(w) { w = w.toLowerCase().replace(/[^a-z]/g, ''); if (w.length <= 3) return 1; w = w.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '').replace(/^y/, ''); const m = w.match(/[aeiouy]{1,2}/g); return m ? m.length : 1; }
+function readingAge(t) {
+  const body = t.replace(/^Hi [^\n]+\n/, '').replace(/Risk team\s*$/, '');
+  const words = body.match(/[A-Za-z'’]+/g) || []; const sents = (body.match(/[.!?](\s|$)/g) || []).length || 1;
+  if (!words.length) return 0;
+  const sy = words.reduce((a, w) => a + syll(w), 0);
+  return Math.round(0.39 * (words.length / sents) + 11.8 * (sy / words.length) - 15.59 + 5);
+}
+function policy(t) {
+  const r = rg(), out = [];
+  const restricted = t.match(/\b(sanctions?|watch ?list|screening|money laundering|suspicious activity|SARs?|law enforcement|police|NCA|investigat\w*|financial crime|terroris\w*)\b/gi);
+  out.push(restricted ? {st:'fail', t:'Mentions a restricted reason', d:`Found: ${[...new Set(restricted.map(x => x.toLowerCase()))].join(', ')}. Telling a business about a financial crime review can be a tipping-off offence under ${r.tipLaw}.`}
+    : {st:'pass', t:'No restricted reasons', d:'Nothing that could tip off a financial crime review.'});
+  const internals = t.match(/\b(score|scores|threshold|model|algorithm|percentile|P95|risk rating|stressed)\b/gi);
+  out.push(internals ? {st:'fail', t:'Shares how our checks work', d:`Found: ${[...new Set(internals.map(x => x.toLowerCase()))].join(', ')}. Detail like this helps people get around the checks.`}
+    : {st:'pass', t:'No scores or thresholds', d:'Explains the decision without exposing how it is made.'});
+  const ra = readingAge(t);
+  out.push(ra <= 13 ? {st:'pass', t:'Plain English', d:`Reading age about ${ra}.`} : {st:'warn', t:'Could be simpler', d:`Reading age about ${ra}. Aim for 13 or under. Shorter sentences help most.`});
+  const words = (t.match(/\S+/g) || []).length;
+  if (words > 230) out.push({st:'warn', t:'Long for a notice', d:`${words} words. Under 200 reads better on a phone.`});
+  if (S.scenario === 'review') {
+    out.push(/\bby (Mon|Tue|Wed|Thu|Fri)\b/.test(t) ? {st:'pass', t:'Gives a date for the next update', d:'Businesses in review tell us this matters most.'} : {st:'warn', t:'No date for the next update', d:'Say when they will hear from us next.'});
+    out.push(/keep taking payments|still take payments/i.test(t) ? {st:'pass', t:'Says they can keep trading', d:'Reduces panic and support contacts.'} : {st:'warn', t:"Doesn't say they can keep trading", d:'Most businesses in review assume they cannot.'});
+  } else {
+    const sym = r.cur === 'GBP' ? '£' : '€';
+    out.push(t.includes(sym) ? {st:'pass', t:'States the cash impact', d:'Includes an amount in the business\'s currency.'} : {st:'warn', t:'No cash impact', d:`Add an amount in ${r.cur}. It's the first thing a business asks.`});
+    out.push(/person/i.test(t) ? {st:'pass', t:'Says a person decided', d:'Needed alongside the review route under ' + r.dataLaw + '.'} : {st:'warn', t:"Doesn't say a person was involved", d:`Under ${r.dataLaw}, businesses run by individuals can ask for human review. Say one took place.`});
+    out.push(t.includes(r.ombuds) ? {st:'pass', t:'Includes the complaint route', d:r.ombuds} : {st:'warn', t:'Missing the complaint route', d:`Mention the ${r.ombuds}.`});
+  }
+  return out;
+}
+function policyHTML(t) {
+  const p = policy(t), bl = p.filter(x => x.st === 'fail').length;
+  return {bl, html:`<ul class="policy">${p.map(x => `<li><span class="c-${x.st}">${ic(x.st === 'pass' ? 'check' : x.st === 'fail' ? 'x' : 'warn')}</span><div><strong><span class="sr">${x.st === 'pass' ? 'Passed' : x.st === 'fail' ? 'Blocks sending' : 'Warning'}: </span>${x.t}</strong><span class="muted">${x.d}</span></div></li>`).join('')}</ul>`};
+}
+
+function viewCase() {
+  const r = rg();
+  if (S.scenario === 'clear') return opsShell(`<div class="crumbs"><a href="#/ops">Cases</a> / Bramble Cycles</div><h1 tabindex="-1">No open case</h1><p class="muted">Bramble Cycles has no open case in this scenario.</p><a class="btn" href="#/ops">Back to cases</a>`);
+  const review = S.scenario === 'review';
+  if (S.draft == null) S.draft = draftFor(S.opsOption);
+  const pol = policyHTML(S.draft);
+  const head = `<div class="crumbs"><a href="#/ops">Cases</a> / ${review ? 'RSK-2611-0519' : CASE_ID}</div>
+  <div class="pagehead"><div><h1 tabindex="-1">Bramble Cycles Ltd</h1><p class="sub">Bicycle shop, ${esc(r.city)}. Account opened Oct 2022. Owner ${esc(r.owner)}.</p></div>
+  <div class="actions">${S.hardship ? `<span class="badge b-bad">Urgent payment: ${esc(S.hardship.what)}, ${esc(S.hardship.when)}</span>` : ''}${review ? '<span class="badge">' + ic('lock') + 'Restricted</span>' : `<span class="badge b-info">${S.submitted ? 'Evidence received' : 'Monitoring'}</span>`}</div></div>`;
+
+  let left = '';
+  if (review) {
+    left += `<section aria-labelledby="h-sig"><h2 id="h-sig">Signals</h2><div class="card"><div class="lock">${ic('lock')}<div><strong style="color:var(--strong)">Visible to financial crime investigators only</strong><p style="margin:4px 0 0">This case is part of a restricted review. Merchant Risk sees the payout pause, the balance and the notice. Reasons stay with the investigation team.</p></div></div></div></section>`;
+  } else {
+    const sg = SIGNALS();
+    left += `<section aria-labelledby="h-sig"><h2 id="h-sig">What's driving this<span class="r muted">Model and rules, ${dfmt(TODAY)}</span></h2><div class="signals">${sg.map((x, i) => `<div class="sig"><div><h3>${x.t}</h3><p>${x.d}</p></div>
+      <div><div class="bar" role="img" aria-label="${x.w > 0 ? 'Raises' : 'Lowers'} risk, ${Math.abs(x.w) > .6 ? 'strongly' : Math.abs(x.w) > .3 ? 'moderately' : 'slightly'}"><i class="${x.w > 0 ? 'up' : 'down'}" style="width:${Math.abs(x.w) * 50}%"></i></div><span class="sigv">${x.w > 0 ? 'Raises' : 'Lowers'} risk</span></div>
+      <div>${S.flagged[i] ? '<span class="badge b-brand">Flagged for model review</span>' : `<button class="btn sm" id="flag-${i}" type="button" data-act="flag" data-i="${i}">This looks wrong</button>`}</div></div>`).join('')}</div></section>`;
+    left += `<section aria-labelledby="h-opt"><h2 id="h-opt">Choose what to do</h2><div class="tablewrap"><table class="optsel"><caption class="sr">Reserve options compared</caption><thead><tr><th scope="col">Option</th><th scope="col" class="r">Held vs stressed loss</th><th scope="col" class="r">Held from business at week 6</th><th scope="col">Released</th></tr></thead><tbody>
+      ${OPTIONS.map(o => `<tr class="${S.opsOption === o.k ? 'sel' : ''}"><td><label><input type="radio" id="opt-${o.k}" name="opsopt" value="${o.k}" ${S.opsOption === o.k ? 'checked' : ''} ${S.sent ? 'disabled' : ''}><span>${o.t} ${o.suggest ? '<span class="badge b-brand">Suggested</span>' : ''}<small>${o.note}</small></span></label></td><td class="r num">${o.cover}</td><td class="r num">${money(o.held)}</td><td style="white-space:nowrap">${o.rel}</td></tr>`).join('')}
+    </tbody></table></div>
+    ${S.opsOption === 'delivery' && linkCover() < 60 ? `<div class="notice warn" style="margin-top:12px">${ic('warn')}<p>${S.link.requested ? `Tracking covers ${linkCover()}% of open orders.` : 'No delivery tracking connected yet.'} Orders without tracking stay on the 90-day release, so the business sees a smaller benefit until coverage improves.</p></div>` : ''}
+    </section>`;
+  }
+  left += `<section aria-labelledby="h-draft"><h2 id="h-draft">Notice to the business<span class="r muted">Drafted by AI from the case, edited by you</span></h2>
+    <div class="card draftbox"><div class="bd">
+      <label for="draft" class="sr">Notice text</label>
+      <textarea id="draft" ${S.sent ? 'readonly' : ''} aria-describedby="pol">${esc(S.draft)}</textarea>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">${S.sent ? '' : `<button class="btn sm" id="redraft" type="button" data-act="redraft">${review && !S.reviewFixed ? 'Use a compliant version' : 'Redraft from case'}</button>`}<span class="fine" style="margin:0;align-self:center">${r.country} rules, sent in English${r.loc === 'en-IE' ? '' : ''}.</span></div>
+    </div>
+    <div class="bd" style="border-top:1px solid var(--line)"><h3 style="margin-bottom:4px">Policy checks</h3><div id="pol" aria-live="polite">${pol.html}</div></div>
+    <div class="ft">${S.sent ? `<span class="notice ok" style="flex:1">${ic('check')}<span>Sent ${dfmt(TODAY)} by ${esc(r.analyst)}. Decision logged and shown in the business's Account standing.</span></span>`
+      : `<button class="btn primary" type="button" id="sendbtn" data-act="send" ${pol.bl ? 'aria-disabled="true"' : ''} aria-describedby="sendhint">${review ? 'Send notice' : 'Approve and send'}</button><span class="fine" id="sendhint" style="margin:0">${pol.bl ? `${pol.bl} check${pol.bl === 1 ? '' : 's'} must pass before this can be sent.` : 'Warnings are allowed. Blocking checks must pass.'}</span>`}</div></div></section>`;
+
+  const files = Object.values(S.files).filter(Boolean);
+  let right = '';
+  if (!review) right += `<div class="panel"><h2>Exposure</h2><dl class="kv">
+      <dt>Undelivered sales</dt><dd class="num">${money(412600)}</dd>
+      <dt>Expected loss</dt><dd class="num">${money(24800)}</dd>
+      <dt>Stressed loss (1 in 20)</dt><dd class="num">${money(71300)}</dd>
+      <dt>Held now</dt><dd class="num">${money(61420)}</dd></dl>
+      <p class="fine">Stressed loss assumes 1 in 6 orders never ships and every one of those is refunded.</p></div>`;
+  else right += `<div class="panel"><h2>Account</h2><dl class="kv"><dt>Payouts</dt><dd>Paused since 18 Nov</dd><dt>Balance waiting</dt><dd class="num">${money(84210.55, 2)}</dd><dt>Taking payments</dt><dd>Yes</dd><dt>Next update due</dt><dd>${dday(REVIEW_UPDATE())}</dd></dl></div>`;
+  if (!review) right += `<div class="panel"><h2>From the business</h2>${files.length || S.link.requested || S.note ? `<ul>${files.map(f => `<li><span class="idcell">${esc(f.name)}</span></li>`).join('')}${S.link.requested ? `<li>Tracking connected: ${esc(S.link.carriers.join(', '))}</li>` : ''}${S.note ? `<li>Note: "${esc(S.note.slice(0, 120))}${S.note.length > 120 ? '...' : ''}"</li>` : ''}</ul>${S.submitted ? `<p class="fine">${(n => n ? `Pre-checked on upload. ${n} file${n > 1 ? 's' : ''} failed checks.` : 'Pre-checked on upload. All files passed or were sent with a note.')(Object.values(S.files).filter(f => f && checkFile(null, f).st === 'fail').length)}</p>` : ''}` : `<p class="muted">Nothing yet. Switch to the Business view to send evidence or link deliveries.</p>`}</div>`;
+  if (!review) right += `<div class="panel"><h2>Similar cases</h2><p>Pre-order spikes at retailers with under 0.5% disputes, last 12 months: 9 in 10 delivered in full. Where orders failed, losses averaged 4% of what was held.</p><p class="fine" style="margin:0">Illustrative figures. This case is in the treatment group for delivery-linked release, with 1 in 10 eligible cases held back on standard reserves so we can measure the effect.</p></div>`;
+  right += `<div class="panel"><h2>Audit trail</h2><ol class="tl">
+    ${review ? `<li class="done"><span class="t">18 Nov, 09:12</span><strong>Payouts paused</strong><br><span class="muted">By financial crime team</span></li>` : `<li class="done"><span class="t">14 Nov, 10:40</span><strong>Reserve applied, 20% rolling</strong><br><span class="muted">Model recommendation, confirmed by ${esc(r.analyst)}</span></li>`}
+    ${S.contacted ? `<li class="done"><span class="t">${dshort(TODAY)}</span><strong>Business contacted us</strong>${S.hardship ? `<br><span class="muted">${esc(S.hardship.what)} due ${esc(S.hardship.when)}</span>` : ''}</li>` : ''}
+    ${Object.keys(S.flagged).length ? `<li class="done"><span class="t">${dshort(TODAY)}</span><strong>${Object.keys(S.flagged).length} signal${Object.keys(S.flagged).length > 1 ? 's' : ''} flagged</strong><br><span class="muted">Sent to model review as labels</span></li>` : ''}
+    ${S.sent ? `<li class="done"><span class="t">${dshort(TODAY)}</span><strong>${review ? 'Notice sent' : decisionLabel(S.decision)}</strong><br><span class="muted">By ${esc(r.analyst)}</span></li>` : `<li class="now"><span class="t">${dshort(TODAY)}</span><strong>Awaiting decision</strong></li>`}
+  </ol></div>`;
+  return opsShell(head + `<div class="cols"><div class="stack">${left}</div><aside class="stack-s" aria-label="Case details">${right}</aside></div>`);
+}
+
+/* ---------- dialogs ---------- */
+const dlg = $('#dlg');
+let lastFocus = null;
+function openDlg(title, body, foot) {
+  lastFocus = document.activeElement;
+  dlg.innerHTML = `<div class="hd"><h2 id="dlg-t">${title}</h2><button class="btn sm x" type="button" data-act="close" aria-label="Close">${ic('x')}</button></div><div class="bd">${body}</div>${foot ? `<div class="ft">${foot}</div>` : ''}`;
+  dlg.showModal();
+  const f = dlg.querySelector('[data-autofocus]') || dlg.querySelector('.bd button, .bd input, .bd select, .bd textarea');
+  if (f) f.focus();
+}
+function closeDlg() { if (dlg.open) dlg.close(); }
+dlg.addEventListener('close', () => {
+  if (lastFocus && document.contains(lastFocus)) return lastFocus.focus();
+  const byId = lastFocus && lastFocus.id && document.getElementById(lastFocus.id);
+  const h = byId || $('#app h1'); if (h) h.focus();
+});
+
+function dlgPick(reqId) {
+  const q = REQS.find(x => x.id === reqId);
+  openDlg(`Add a file`, `<p class="muted" style="font-size:13px">Pick a sample file to see the checks, or try one from your device.</p>
+    <div class="pick">${q.samples.map(s => `<button type="button" data-act="usefile" data-req="${q.id}" data-n="${esc(s.n)}" data-size="${esc(s.size)}">${ic('file')}<span class="fn">${esc(s.n)}</span><small>${esc(s.s)} · ${esc(s.size)}</small></button>`).join('')}</div>
+    <div class="drop"><label for="devfile">Or choose a file from your device</label><br><input type="file" id="devfile" data-req="${q.id}" style="margin-top:8px"><div class="hint" style="margin-top:6px">PDF, PNG, JPG, CSV or XLSX, up to 10 MB. Stays in your browser.</div></div>`,
+    `<button class="btn" type="button" data-act="close">Cancel</button>`);
+}
+function dlgLink() {
+  const r = rg(); const c = S.link.carriers;
+  openDlg('Link your deliveries', `<p>Choose where your tracking lives. We'll read order numbers, tracking status and delivery dates. Nothing about your customers beyond that.</p>
+    <fieldset style="border:0;padding:0;margin:12px 0"><legend class="lbl" style="font-weight:600;color:var(--strong);margin-bottom:6px">Carriers and stores</legend>
+    ${r.carriers.map(x => `<label class="check"><input type="checkbox" name="carrier" value="${esc(x)}" ${c.includes(x) ? 'checked' : ''}><span>${esc(x)}<small>${x === 'Shopify orders' ? 'Uses fulfilment status from your store' : 'Connects with your account number'}</small></span></label>`).join('')}</fieldset>
+    <div id="linkerr" class="err" hidden style="color:var(--bad);font-size:12px">${ic('warn')} Choose at least one.</div>
+    <div class="notice neu">${ic('info')}<p>You can disconnect at any time. If you do, held funds go back to the 90-day release.</p></div>`,
+    `<button class="btn" type="button" data-act="close">Cancel</button><button class="btn primary" type="button" data-act="linkgo">${S.link.requested ? 'Save' : 'Connect and request'}</button>`);
+}
+function dlgContact() {
+  const r = rg();
+  openDlg('Contact the Risk team', `<form id="cform" novalidate>
+    <div class="field"><label for="cmsg">Message</label><textarea id="cmsg" maxlength="1000" aria-describedby="cmsg-h" data-autofocus></textarea><div class="hint" id="cmsg-h">Goes straight to your case. A person replies, usually within 1 business day.</div><div class="err" id="cmsg-e" hidden>${ic('warn')}Write a message or tell us about a payment below.</div></div>
+    <label class="check"><input type="checkbox" id="chard"><span>I have a payment due in the next 14 days that I can't make<small>We'll prioritise your case. You won't need to prove it now.</small></span></label>
+    <div id="hardf" hidden style="margin-top:10px" class="row2">
+      <div class="field"><label for="hwhat">What's due</label><select class="input" id="hwhat"><option>Payroll</option><option>Supplier payment</option><option>Tax to ${esc(r.tax)}</option><option>Rent</option><option>Something else</option></select></div>
+      <div class="field"><label for="hwhen">When</label><input class="input" type="date" id="hwhen" min="${iso(TODAY)}" max="${iso(new Date(2026,11,4))}" aria-describedby="hwhen-e"><div class="err" id="hwhen-e" hidden>${ic('warn')}Choose a date in the next 14 days.</div></div>
+    </div></form>`,
+    `<button class="btn" type="button" data-act="close">Cancel</button><button class="btn primary" type="button" data-act="csend">Send</button>`);
+}
+function dlgHow() {
+  const r = rg();
+  openDlg('How we make these decisions', `<p>Automated checks look at how your sales change, how long deliveries take, your refund and dispute history, and changes to your business details. When they suggest holding funds, a person on our Risk team looks at the case before anything changes, unless the risk is urgent.</p>
+    <p>We size any reserve to what's at risk, and we look again on a set date even if you don't ask. You can ask us to review a decision at any time and give us your side.</p>
+    <p>${esc(r.dataNote)}</p><p style="margin:0">We don't publish scores or thresholds, because that would help people get around the checks.</p>`, `<button class="btn primary" type="button" data-act="close">Done</button>`);
+}
+
+/* ---------- toast / announce ---------- */
+let tt;
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 3600); }
+
+/* ---------- routing / render ---------- */
+const route = () => (location.hash || '#/standing').slice(1);
+function render(focusMain) {
+  const ro = route();
+  document.querySelectorAll('input[name=view]').forEach(i => i.checked = (i.value === 'ops') === ro.startsWith('/ops'));
+  document.querySelectorAll('input[name=region]').forEach(i => i.checked = i.value === S.region);
+  $('#scenario').value = S.scenario;
+  const keep = document.activeElement && document.activeElement.id;
+  let html, title;
+  if (ro === '/standing/evidence') { html = viewEvidence(); title = 'Send evidence'; }
+  else if (ro === '/ops') { html = viewQueue(); title = 'Cases · Risk Ops'; }
+  else if (ro === '/ops/case') { html = viewCase(); title = 'Bramble Cycles · Risk Ops'; }
+  else { html = viewStanding(); title = 'Account standing'; }
+  $('#app').innerHTML = html;
+  document.title = `${title} · Risk concept`;
+  if (focusMain) { const h = $('#app h1'); if (h) h.focus({preventScroll:true}); window.scrollTo(0, 0); }
+  else if (keep) { const el = document.getElementById(keep); if (el) el.focus({preventScroll:true}); }
+}
+window.addEventListener('hashchange', () => render(true));
+
+/* ---------- events ---------- */
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.name === 'view') { location.hash = t.value === 'ops' ? '#/ops' : '#/standing'; }
+  else if (t.name === 'region') { S.region = t.value; S.draft = null; render(); toast(`Showing ${rg().country} rules and ${rg().cur}`); }
+  else if (t.id === 'scenario') { $('#toast').classList.remove('on'); const keep = S.region; S = fresh(); S.region = keep; S.scenario = t.value; render(true); }
+  else if (t.name === 'chart') { S.chart = t.value; render(); }
+  else if (t.name === 'opsopt') { S.opsOption = t.value; S.draft = draftFor(t.value); render(); }
+  else if (t.id === 'chard') { $('#hardf').hidden = !t.checked; }
+  else if (t.id === 'devfile' && t.files && t.files[0]) {
+    const f = t.files[0], kb = f.size / 1024;
+    S.files[t.dataset.req] = {name:f.name, bytes:f.size, size: kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(kb))} KB`, local:true};
+    closeDlg(); render(); announceFile(t.dataset.req);
+  }
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'draft') { S.draft = t.value; const p = policyHTML(t.value); $('#pol').innerHTML = p.html; const b = $('#sendbtn'); if (b) { b.toggleAttribute('aria-disabled', !!p.bl); if (p.bl) b.setAttribute('aria-disabled', 'true'); } const h = $('#sendhint'); if (h) h.textContent = p.bl ? `${p.bl} check${p.bl === 1 ? '' : 's'} must pass before this can be sent.` : 'Warnings are allowed. Blocking checks must pass.'; }
+  if (t.id === 'note') { S.note = t.value; $('#notecount').textContent = t.value.length; }
+});
+function announceFile(id) { const f = S.files[id]; const r = checkFile(null, f); $('#announce').textContent = `${f.name} added. ${r.st === 'pass' ? 'All checks passed.' : r.st === 'fail' ? 'It needs replacing.' : 'It can be sent, with a note.'}`; }
+
+document.addEventListener('submit', e => {
+  const f = e.target;
+  if (f.dataset.form === 'ask') {
+    e.preventDefault(); const v = f.q.value.trim(); if (!v) { f.q.focus(); return; }
+    S.asked.push(answer(v)); render(); $('#askin').focus();
+  }
+  if (f.dataset.form === 'pre') {
+    e.preventDefault();
+    const v = {type:f.type.value, start:f.start.value, amt:f.amt.value.trim(), ship:f.ship.value}; const err = {};
+    const amt = parseFloat(v.amt.replace(/[^0-9.]/g, ''));
+    if (!v.start) err.start = 'Choose a start date.'; else if (v.start < iso(TODAY)) err.start = 'Choose a date from today onwards.';
+    if (!v.amt) err.amt = 'Enter the sales you expect.'; else if (!(amt > 0)) err.amt = 'Enter an amount, like 25000.';
+    if (Object.keys(err).length) { S.preclear = {v, err}; render(); const first = err.start ? '#pe-start' : '#pe-amt'; $(first).focus(); return; }
+    const usual = 84000 * rg().fx, slow = v.ship === '4 to 12 weeks' || v.ship === 'More than 12 weeks';
+    const fmt = new Intl.NumberFormat(rg().loc, {style:'currency', currency:rg().cur, maximumFractionDigits:0});
+    const risky = slow && amt > usual * 2;
+    const msg = risky ? `<strong>Thanks, we've noted your ${esc(v.type.toLowerCase())}.</strong> With deliveries taking ${esc(v.ship)}, sales of ${fmt.format(amt)} may still mean we hold some funds while orders are undelivered. If you link your delivery tracking before it starts, anything held comes back as each order arrives.`
+      : `<strong>Thanks, we've noted your ${esc(v.type.toLowerCase())}.</strong> Sales up to ${fmt.format(Math.max(amt * 1.25, usual))} during it won't lead to funds being held on their own. If plans change, tell us again.`;
+    S.preclear = {done:true, risky, msg}; render(); const h = $('#h-pre'); if (h) { h.setAttribute('tabindex', '-1'); h.focus(); }
+  }
+});
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const a = el.dataset.act;
+  if (el.getAttribute('aria-disabled') === 'true') { e.preventDefault(); if (a === 'submit') toast('Add at least one file first'); if (a === 'send') { toast('Fix the blocking checks first'); const p = $('#pol'); if (p) p.scrollIntoView({block:'center'}); } return; }
+  switch (a) {
+    case 'reset': { const keep = S.region; S = fresh(); S.region = keep; location.hash = '#/standing'; render(true); toast('Demo reset'); break; }
+    case 'ask': S.asked.push(answer(el.dataset.q)); render(); break;
+    case 'table': S.table = !S.table; render(); break;
+    case 'how': dlgHow(); break;
+    case 'contact': dlgContact(); break;
+    case 'link': dlgLink(); break;
+    case 'close': closeDlg(); break;
+    case 'pick': dlgPick(el.dataset.req); break;
+    case 'usefile': S.files[el.dataset.req] = {name:el.dataset.n, size:el.dataset.size, bytes:1}; closeDlg(); render(); announceFile(el.dataset.req); break;
+    case 'linkgo': {
+      const sel = [...dlg.querySelectorAll('input[name=carrier]:checked')].map(i => i.value);
+      if (!sel.length) { $('#linkerr').hidden = false; dlg.querySelector('input[name=carrier]').focus(); return; }
+      S.link = {carriers:sel, requested:true}; closeDlg(); render(); toast(`Connected. Tracking covers ${linkCover()}% of your open orders.`); break;
+    }
+    case 'csend': {
+      const msg = $('#cmsg').value.trim(), hard = $('#chard').checked, when = $('#hwhen') && $('#hwhen').value;
+      $('#cmsg-e').hidden = true; $('#hwhen-e').hidden = true; $('#cmsg').removeAttribute('aria-invalid'); $('#hwhen').removeAttribute('aria-invalid');
+      if (!msg && !hard) { $('#cmsg-e').hidden = false; $('#cmsg').setAttribute('aria-invalid', 'true'); $('#cmsg').setAttribute('aria-describedby', 'cmsg-h cmsg-e'); $('#cmsg').focus(); return; }
+      if (hard && (!when || when < iso(TODAY) || when > '2026-12-04')) { $('#hwhen-e').hidden = false; $('#hwhen').setAttribute('aria-invalid', 'true'); $('#hwhen').focus(); return; }
+      S.contacted = true; if (hard) S.hardship = {what:$('#hwhat').value, when:dshort(new Date(when + 'T12:00'))};
+      closeDlg(); render(); toast(hard ? 'Sent and marked as a priority. A person will reply within 1 business day.' : 'Sent to your case. A person will reply within 1 business day.'); break;
+    }
+    case 'submit': {
+      const fails = Object.values(S.files).filter(f => f && checkFile(null, f).st === 'fail').length;
+      if (fails && !el.dataset.confirm) { el.dataset.confirm = '1'; el.textContent = `Send anyway, with ${fails} problem${fails > 1 ? 's' : ''}`; toast('One or more files need replacing. Sending now will slow the review.'); return; }
+      S.submitted = true; render(true); break;
+    }
+    case 'opencase': if (!e.target.closest('a')) location.hash = '#/ops/case'; break;
+    case 'filter': S.filter = el.dataset.f; render(); break;
+    case 'flag': S.flagged[el.dataset.i] = true; render(); toast('Flagged. It goes to model review as a label, and the decision stays yours.'); break;
+    case 'redraft': if (S.scenario === 'review') S.reviewFixed = true; S.draft = draftFor(S.opsOption); render(); break;
+    case 'send': {
+      S.sent = true; if (S.scenario === 'reserve') S.decision = S.opsOption;
+      render(); toast(S.scenario === 'reserve' ? `${decisionLabel(S.decision)} applied. Switch to the Business view to see what they see.` : 'Notice sent. Switch to the Business view to see what they see.'); break;
+    }
+    case 'preagain': S.preclear = null; render(); $('#pe-type').focus(); break;
+  }
+});
+
+if (!location.hash) history.replaceState(null, '', '#/standing');
+render();
+})();
+</script>
+</body>
+</html>
